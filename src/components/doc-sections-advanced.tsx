@@ -48,7 +48,7 @@ export function CustomThemeSection() {
         Custom Theme
       </SectionHeading>
       <p className="text-muted-foreground mb-4 leading-relaxed">
-        Build a full custom theme by satisfying the <code className="font-mono text-xs px-1.5 py-0.5 rounded bg-accent/60 text-accent-foreground">Theme</code> interface.
+        Build a full custom theme by satisfying the <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">Theme</code> interface.
         The easiest approach is to spread a built-in theme and override only the properties you want to change.
       </p>
       <CodeBlock language="typescript" code={`import { defaultTheme, type Theme } from 'jsongraphs';
@@ -100,13 +100,16 @@ export function AdvancedCaptionSection() {
         Advanced Usage
       </SectionHeading>
       <SectionHeading id="advanced-caption-h3" level={3}>
-        __CAPTION__ Key — Custom Edge Labels
+        __CAPTION__ Key — Floating Node & Edge Labels
       </SectionHeading>
       <p className="text-muted-foreground mb-4 leading-relaxed">
-        Add a special <code className="font-mono text-xs px-1.5 py-0.5 rounded bg-accent/60 text-accent-foreground">__CAPTION__</code> key inside any JSON object
-        to place a descriptive label in a pill box at the midpoint of the incoming edge.
-        The node itself is hidden — only the caption is shown on the edge.
+        Add a special <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">__CAPTION__</code> key inside any JSON object
+        to inject contextual meaning into your graph.
       </p>
+      <ul className="list-disc list-inside text-muted-foreground mb-4 leading-relaxed space-y-1">
+        <li><strong>Top-Level Nodes (Depth 1):</strong> Renders as a beautiful floating pill directly above the node itself.</li>
+        <li><strong>Deep Nodes (Depth &gt; 1):</strong> Renders elegantly centered on the incoming connecting edge.</li>
+      </ul>
       <CodeBlock language="json" filename="example.json" code={`{
   "user": {
     "__CAPTION__": "is assigned to",
@@ -114,14 +117,13 @@ export function AdvancedCaptionSection() {
     "role": "admin"
   },
   "project": {
-    "__CAPTION__": "belongs to",
+    "__CAPTION__": "Project Details",
     "title": "JsonGraphs Docs",
     "status": "active"
   }
 }`} />
       <Callout type="note">
-        The <code className="font-mono text-xs">__CAPTION__</code> node is automatically detected during parsing.
-        Its value becomes the <code className="font-mono text-xs">caption</code> field on the parent edge, and the node itself is marked <code className="font-mono text-xs">transparent</code>.
+        The <code className="font-mono text-xs">__CAPTION__</code> node is automatically detected during parsing and extracted. The node itself is then marked <code className="font-mono text-xs">transparent</code> to keep the graph clean.
       </Callout>
     </section>
   );
@@ -136,9 +138,9 @@ export function AdvancedStreamingSection() {
         Streaming Large Files
       </SectionHeading>
       <p className="text-muted-foreground mb-4 leading-relaxed">
-        JsonGraphs uses a chunked streaming parser internally. You can feed it a{" "}
-        <code className="font-mono text-xs px-1.5 py-0.5 rounded bg-accent/60 text-accent-foreground">ReadableStream&lt;Uint8Array&gt;</code> directly,
-        which means it starts rendering as it downloads — perfect for very large JSON files.
+        JsonGraphs uses an asynchronous chunked streaming parser internally with automatic <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">yieldToMain()</code> integration. 
+        You can feed it a <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">ReadableStream&lt;Uint8Array&gt;</code> directly.
+        This guarantees the UI will <strong>never freeze</strong>, even when processing files with hundreds of thousands of nodes.
       </p>
       <CodeBlock language="typescript" code={`// Stream directly from fetch — renders as data arrives
 const response = await fetch('/api/huge-dataset.json');
@@ -172,18 +174,34 @@ const graph = new JsonGraph({
 
 export function Footer() {
   return (
-    <footer className="border-t border-border mt-24 py-12 text-center">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-sm text-muted-foreground">
-            <strong className="text-foreground">JsonGraphs</strong> — MIT License © {new Date().getFullYear()}{" "}
-            <a href="https://devian.agency" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
-              Devian Agency
-            </a>
+    <footer className="relative mt-24 border-t border-primary/10">
+      {/* Subtle gradient top */}
+      <div className="absolute -top-px inset-x-0 h-px bg-linear-to-r from-transparent via-primary/40 to-transparent" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-muted-foreground">
+              <span className="font-semibold text-foreground">JsonGraphs</span>
+              {" "}— MIT License © {new Date().getFullYear()}{" "}
+              <a href="https://devian.agency" className="text-primary/80 hover:text-primary transition-colors" target="_blank" rel="noopener noreferrer">
+                Devian Agency
+              </a>
+            </span>
           </div>
-          <div className="flex items-center gap-4 text-sm">
-            <a href="https://github.com/devian-agency/jsongraphs" className="text-muted-foreground hover:text-foreground transition-colors" target="_blank" rel="noopener noreferrer">GitHub</a>
-            <a href="https://www.npmjs.com/package/jsongraphs" className="text-muted-foreground hover:text-foreground transition-colors" target="_blank" rel="noopener noreferrer">npm</a>
+          <div className="flex items-center gap-1">
+            {[
+              { label: "GitHub", href: "https://github.com/devian-agency/jsongraphs" },
+              { label: "npm",    href: "https://www.npmjs.com/package/jsongraphs" },
+              { label: "devian.agency", href: "https://devian.agency" },
+            ].map((l, i, arr) => (
+              <React.Fragment key={l.href}>
+                <a href={l.href} target="_blank" rel="noopener noreferrer"
+                   className="px-3 py-1.5 text-sm text-muted-foreground/60 hover:text-muted-foreground rounded-lg hover:bg-primary/8 transition-all">
+                  {l.label}
+                </a>
+                {i < arr.length - 1 && <span className="text-border">·</span>}
+              </React.Fragment>
+            ))}
           </div>
         </div>
       </div>

@@ -2,6 +2,177 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { Check, Copy, ChevronRight } from "lucide-react";
+
+// ─── Syntax highlighter (single-pass character tokenizer) ─────────────────────
+// We HTML-escape the raw source FIRST, then walk character-by-character
+// producing colored spans. Because we never re-process emitted markup,
+// regex patterns can NEVER corrupt span attribute strings.
+
+function esc(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+// Emit one colored span around already-escaped content
+function span(cls: string, content: string) { return `<span class="${cls}">${content}</span>`; }
+
+const KW = new Set([
+  "import","export","from","const","let","var","function","class","new","return",
+  "await","async","if","else","typeof","keyof","in","of","true","false","null",
+  "undefined","void","type","interface","extends","implements","declare","readonly",
+  "private","public","protected","default","throw","try","catch","for","while",
+  "break","continue","switch","case","enum","this","super","delete","instanceof",
+  "yield","static","abstract","override",
+]);
+
+function tokenizeTS(s: string): string {
+  let out = ""; let i = 0; const n = s.length;
+  while (i < n) {
+    // Single-line comment
+    if (s[i] === "/" && s[i+1] === "/") {
+      let j = i; while (j < n && s[j] !== "\n") j++;
+      out += span("sh-comment", s.slice(i, j)); i = j; continue;
+    }
+    // Block comment
+    if (s[i] === "/" && s[i+1] === "*") {
+      let j = i + 2; while (j < n && !(s[j] === "*" && s[j+1] === "/")) j++;
+      j = Math.min(j + 2, n);
+      out += span("sh-comment", s.slice(i, j)); i = j; continue;
+    }
+    // Double-quoted string — after esc(), " became &quot;
+    if (s.startsWith("&quot;", i)) {
+      let j = i + 6;
+      while (j < n) {
+        if (s[j] === "\\" ) { j += 2; continue; }
+        if (s.startsWith("&quot;", j)) { j += 6; break; }
+        if (s[j] === "\n") break;
+        j++;
+      }
+      out += span("sh-string", s.slice(i, j)); i = j; continue;
+    }
+    // Single-quoted string
+    if (s[i] === "'") {
+      let j = i + 1;
+      while (j < n && s[j] !== "'" && s[j] !== "\n") { if (s[j] === "\\") j++; j++; }
+      if (j < n && s[j] === "'") j++;
+      out += span("sh-string", s.slice(i, j)); i = j; continue;
+    }
+    // Template literal
+    if (s[i] === "`") {
+      let j = i + 1;
+      while (j < n && s[j] !== "`") { if (s[j] === "\\") j++; j++; }
+      if (j < n) j++;
+      out += span("sh-string", s.slice(i, j)); i = j; continue;
+    }
+    // HTML entity (&amp; &lt; &gt; etc.) — emit whole entity as plain text
+    if (s[i] === "&") {
+      let j = i + 1; while (j < n && s[j] !== ";" && j - i < 8) j++;
+      if (j < n && s[j] === ";") j++;
+      out += s.slice(i, j); i = j; continue;
+    }
+    // Number
+    if (s[i] >= "0" && s[i] <= "9") {
+      let j = i;
+      while (j < n && ((s[j] >= "0" && s[j] <= "9") || s[j] === "_" || s[j] === ".")) j++;
+      out += span("sh-number", s.slice(i, j)); i = j; continue;
+    }
+    // Identifier → keyword / type / property / plain
+    if (/[a-zA-Z_$]/.test(s[i])) {
+      let j = i; while (j < n && /[a-zA-Z0-9_$]/.test(s[j])) j++;
+      const word = s.slice(i, j);
+      // look-ahead past spaces to detect "key:"
+      let k = j; while (k < n && (s[k] === " " || s[k] === "\t")) k++;
+      const isProp = k < n && s[k] === ":" && s[k+1] !== ":";
+      if (KW.has(word))            out += span("sh-keyword",  word);
+      else if (/^[A-Z]/.test(word)) out += span("sh-type",    word);
+      else if (isProp)              out += span("sh-property", word);
+      else                          out += word;
+      i = j; continue;
+    }
+    out += s[i++];
+  }
+  return out;
+}
+
+function tokenizeJSON(s: string): string {
+  let out = ""; let i = 0; const n = s.length;
+  while (i < n) {
+    if (s.startsWith("&quot;", i)) {
+      let j = i + 6;
+      while (j < n) {
+        if (s[j] === "\\") { j += 2; continue; }
+        if (s.startsWith("&quot;", j)) { j += 6; break; }
+        j++;
+      }
+      let k = j; while (k < n && (s[k] === " " || s[k] === "\t")) k++;
+      const isKey = k < n && s[k] === ":";
+      out += span(isKey ? "sh-property" : "sh-string", s.slice(i, j)); i = j; continue;
+    }
+    if (s[i] === "&") {
+      let j = i + 1; while (j < n && s[j] !== ";" && j - i < 8) j++;
+      if (j < n && s[j] === ";") j++;
+      out += s.slice(i, j); i = j; continue;
+    }
+    if (s[i] >= "0" && s[i] <= "9" || (s[i] === "-" && s[i+1] >= "0" && s[i+1] <= "9")) {
+      let j = i;
+      while (j < n && /[0-9.\-eE+]/.test(s[j])) j++;
+      out += span("sh-number", s.slice(i, j)); i = j; continue;
+    }
+    for (const kw of ["true","false","null"]) {
+      if (s.startsWith(kw, i) && !/[a-zA-Z]/.test(s[i + kw.length] ?? "")) {
+        out += span("sh-keyword", kw); i += kw.length; break;
+      }
+    }
+    if (i < n) { out += s[i++]; }
+  }
+  return out;
+}
+
+function tokenizeBash(s: string): string {
+  let out = ""; let i = 0; const n = s.length;
+  while (i < n) {
+    if (s[i] === "#") {
+      let j = i; while (j < n && s[j] !== "\n") j++;
+      out += span("sh-comment", s.slice(i, j)); i = j; continue;
+    }
+    if (s[i] === "$" && (i === 0 || s[i-1] === "\n" || s[i-1] === " ")) {
+      out += span("sh-operator", "$"); i++; continue;
+    }
+    if (s.startsWith("&quot;", i)) {
+      let j = i + 6;
+      while (j < n) {
+        if (s[j] === "\\") { j += 2; continue; }
+        if (s.startsWith("&quot;", j)) { j += 6; break; }
+        j++;
+      }
+      out += span("sh-string", s.slice(i, j)); i = j; continue;
+    }
+    if (s[i] === "&") {
+      let j = i + 1; while (j < n && s[j] !== ";" && j - i < 8) j++;
+      if (j < n && s[j] === ";") j++;
+      out += s.slice(i, j); i = j; continue;
+    }
+    if (/[a-zA-Z_]/.test(s[i])) {
+      let j = i; while (j < n && /[a-zA-Z0-9_\-]/.test(s[j])) j++;
+      const word = s.slice(i, j);
+      const builtins = new Set(["npm","yarn","bun","npx","install","add","run","init","create"]);
+      out += builtins.has(word) ? span("sh-builtin", word) : word;
+      i = j; continue;
+    }
+    out += s[i++];
+  }
+  return out;
+}
+
+function highlight(rawCode: string, lang: string): string {
+  const escaped = esc(rawCode.trim());
+  if (lang === "bash" || lang === "sh") return tokenizeBash(escaped);
+  if (lang === "json")                  return tokenizeJSON(escaped);
+  return tokenizeTS(escaped);
+}
+
+
+// ─── CodeBlock ────────────────────────────────────────────────────────────────
 
 interface CodeBlockProps {
   code: string;
@@ -10,84 +181,84 @@ interface CodeBlockProps {
   className?: string;
 }
 
-// Very lightweight syntax highlighter — no runtime deps
-function highlight(code: string, lang: string): string {
-  if (lang === "bash" || lang === "sh") {
-    return code
-      .replace(/(#.*$)/gm, '<span class="token-comment">$1</span>')
-      .replace(/\b(npm|yarn|bun|npx)\b/g, '<span class="token-keyword">$1</span>');
-  }
-
-  // JS/TS/JSON
-  let out = code
-    // Strings
-    .replace(/(["'`])((?:\\\1|(?!\1)[\s\S])*?)\1/g, '<span class="token-string">$1$2$1</span>')
-    // Comments (single-line)
-    .replace(/(\/\/[^\n<]*)/g, '<span class="token-comment">$1</span>')
-    // Numbers
-    .replace(/\b(\d+(?:\.\d+)?(?:_\d+)*)\b/g, '<span class="token-number">$1</span>')
-    // Keywords
-    .replace(
-      /\b(import|export|from|const|let|var|function|class|new|return|await|async|if|else|type|interface|extends|implements|typeof|keyof|in|of|true|false|null|undefined|void|boolean|string|number|object)\b/g,
-      '<span class="token-keyword">$1</span>'
-    )
-    // Object properties / keys in JSON
-    .replace(/"([^"]+)"(?=\s*:)/g, '<span class="token-property">"$1"</span>');
-
-  return out;
-}
-
 export function CodeBlock({ code, language = "typescript", filename, className }: CodeBlockProps) {
   const [copied, setCopied] = React.useState(false);
 
   async function copy() {
-    await navigator.clipboard.writeText(code);
+    await navigator.clipboard.writeText(code.trim());
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
 
-  const highlighted = highlight(code.trim(), language);
+  const html = highlight(code, language);
+  const lines = html.split("\n");
 
   return (
-    <div className={cn("rounded-xl overflow-hidden border border-border bg-card", className)}>
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2 bg-muted/40 border-b border-border">
-        <div className="flex items-center gap-2">
+    <div className={cn(
+      "group relative rounded-2xl overflow-hidden border border-border/60",
+      "bg-[#0a0a10] shadow-xl shadow-black/30",
+      "hover:border-primary/20 transition-colors duration-300",
+      className
+    )}>
+      {/* Header bar */}
+      <div className="flex items-center justify-between px-4 py-2.5 bg-white/2 border-b border-border/50">
+        <div className="flex items-center gap-3">
+          {/* Traffic lights */}
           <div className="flex gap-1.5">
-            <span className="size-3 rounded-full bg-destructive/60" />
-            <span className="size-3 rounded-full bg-amber-400/60" />
-            <span className="size-3 rounded-full bg-emerald-400/60" />
+            <span className="size-2.5 rounded-full bg-[#ff5f56]" />
+            <span className="size-2.5 rounded-full bg-[#ffbd2e]" />
+            <span className="size-2.5 rounded-full bg-[#27c93f]" />
           </div>
           {filename && (
-            <span className="text-xs font-mono text-muted-foreground ml-2">{filename}</span>
+            <span className="text-xs font-mono text-muted-foreground/70 pl-2 border-l border-border/40">
+              {filename}
+            </span>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {language && (
-            <span className="text-xs text-muted-foreground font-mono">{language}</span>
+            <span className="text-[11px] font-mono text-muted-foreground/50 uppercase tracking-wide">
+              {language}
+            </span>
           )}
           <button
             onClick={copy}
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-md hover:bg-muted cursor-pointer"
+            className="flex items-center gap-1.5 text-xs text-muted-foreground/60 hover:text-primary
+                       px-2 py-1 rounded-md hover:bg-primary/10 transition-all cursor-pointer"
             aria-label="Copy code"
           >
-            {copied ? "✓ Copied" : "Copy"}
+            {copied ? (
+              <><Check className="size-3 text-emerald-400" /><span className="text-emerald-400">Copied</span></>
+            ) : (
+              <><Copy className="size-3" /><span>Copy</span></>
+            )}
           </button>
         </div>
       </div>
 
-      {/* Code */}
-      <pre className="overflow-x-auto p-4 text-sm leading-relaxed font-mono">
-        <code
-          className="text-foreground"
-          dangerouslySetInnerHTML={{ __html: highlighted }}
-        />
-      </pre>
+      {/* Code area with line numbers */}
+      <div className="overflow-x-auto">
+        <pre className="p-4 text-sm leading-relaxed font-mono">
+          <code>
+            {lines.map((line, i) => (
+              <div key={i} className="flex group/line hover:bg-primary/4 -mx-4 px-4 rounded">
+                <span className="select-none w-8 shrink-0 text-right text-muted-foreground/25 text-xs leading-relaxed mr-4 pt-px">
+                  {i + 1}
+                </span>
+                <span
+                  className="flex-1 text-[#c8c6e0]"
+                  dangerouslySetInnerHTML={{ __html: line || " " }}
+                />
+              </div>
+            ))}
+          </code>
+        </pre>
+      </div>
     </div>
   );
 }
 
-// ─── Inline prop table ─────────────────────────────────────────────────────────
+// ─── PropTable ────────────────────────────────────────────────────────────────
 
 interface PropRow {
   name: string;
@@ -97,47 +268,37 @@ interface PropRow {
   required?: boolean;
 }
 
-interface PropTableProps {
-  rows: PropRow[];
-  className?: string;
-}
-
-export function PropTable({ rows, className }: PropTableProps) {
+export function PropTable({ rows, className }: { rows: PropRow[]; className?: string }) {
   return (
-    <div className={cn("overflow-x-auto rounded-xl border border-border", className)}>
+    <div className={cn("overflow-x-auto rounded-2xl border border-border/60 shadow-lg", className)}>
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-border bg-muted/40">
-            <th className="text-left px-4 py-3 font-semibold text-foreground">Option</th>
-            <th className="text-left px-4 py-3 font-semibold text-foreground">Type</th>
-            <th className="text-left px-4 py-3 font-semibold text-foreground">Default</th>
-            <th className="text-left px-4 py-3 font-semibold text-foreground">Description</th>
+          <tr className="border-b border-border/60 bg-white/2">
+            <th className="text-left px-5 py-3.5 font-semibold text-xs uppercase tracking-widest text-muted-foreground/70 w-40">Option</th>
+            <th className="text-left px-4 py-3.5 font-semibold text-xs uppercase tracking-widest text-muted-foreground/70 w-48">Type</th>
+            <th className="text-left px-4 py-3.5 font-semibold text-xs uppercase tracking-widest text-muted-foreground/70 w-28">Default</th>
+            <th className="text-left px-4 py-3.5 font-semibold text-xs uppercase tracking-widest text-muted-foreground/70">Description</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((row, i) => (
             <tr
               key={row.name}
-              className={cn(
-                "border-b border-border last:border-0 transition-colors hover:bg-muted/20",
-                i % 2 === 0 ? "" : "bg-muted/10"
-              )}
+              className="border-b border-border/30 last:border-0 hover:bg-primary/3 transition-colors group"
             >
-              <td className="px-4 py-3 font-mono text-primary text-xs">
-                {row.name}
-                {row.required && (
-                  <span className="ml-1 text-destructive text-[10px]">*</span>
-                )}
+              <td className="px-5 py-3.5">
+                <code className="font-mono text-xs text-primary font-semibold">
+                  {row.name}
+                  {row.required && <span className="text-red-400 ml-0.5">*</span>}
+                </code>
               </td>
-              <td className="px-4 py-3 font-mono text-xs text-amber-600 dark:text-amber-400 whitespace-nowrap">
-                {row.type}
+              <td className="px-4 py-3.5">
+                <code className="font-mono text-xs text-[#ffcb6b] whitespace-nowrap">{row.type}</code>
               </td>
-              <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
-                {row.default ?? "—"}
+              <td className="px-4 py-3.5">
+                <code className="font-mono text-xs text-muted-foreground/60">{row.default ?? "—"}</code>
               </td>
-              <td className="px-4 py-3 text-muted-foreground text-xs leading-relaxed">
-                {row.description}
-              </td>
+              <td className="px-4 py-3.5 text-xs text-muted-foreground leading-relaxed">{row.description}</td>
             </tr>
           ))}
         </tbody>
@@ -146,7 +307,7 @@ export function PropTable({ rows, className }: PropTableProps) {
   );
 }
 
-// ─── Section anchor heading ────────────────────────────────────────────────────
+// ─── SectionHeading ───────────────────────────────────────────────────────────
 
 interface SectionHeadingProps {
   id: string;
@@ -157,91 +318,92 @@ interface SectionHeadingProps {
   className?: string;
 }
 
+const BADGE_COLORS: Record<string, string> = {
+  "Getting Started": "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20",
+  "API Reference":   "bg-violet-500/15 text-violet-400 border border-violet-500/20",
+  "Types":           "bg-sky-500/15 text-sky-400 border border-sky-500/20",
+  "Themes":          "bg-amber-500/15 text-amber-400 border border-amber-500/20",
+  "Advanced":        "bg-rose-500/15 text-rose-400 border border-rose-500/20",
+  "Features":        "bg-indigo-500/15 text-indigo-400 border border-indigo-500/20",
+};
+
 export function SectionHeading({
-  id,
-  children,
-  level = 2,
-  badge,
-  badgeColor = "bg-primary/10 text-primary",
-  className,
+  id, children, level = 2, badge, badgeColor, className,
 }: SectionHeadingProps) {
   const Tag = `h${level}` as "h2" | "h3";
+  const color = badgeColor ?? (badge ? BADGE_COLORS[badge] ?? "bg-primary/10 text-primary" : "");
+
   return (
     <Tag
       id={id}
       className={cn(
         "group flex items-center gap-3 scroll-mt-24",
         level === 2
-          ? "text-2xl font-bold text-foreground mt-16 mb-6"
-          : "text-lg font-semibold text-foreground mt-10 mb-4",
+          ? "text-2xl font-bold text-foreground mt-20 mb-6"
+          : "text-base font-semibold text-foreground mt-12 mb-4",
         className
       )}
     >
-      <a href={`#${id}`} className="no-underline">
-        {children}
-      </a>
+      {level === 2 && (
+        <span className="inline-block w-1 h-6 rounded-full bg-primary/60 shrink-0" />
+      )}
+      <a href={`#${id}`} className="hover:text-primary transition-colors">{children}</a>
       {badge && (
-        <span className={cn("text-xs font-medium px-2 py-0.5 rounded-full", badgeColor)}>
+        <span className={cn("text-[11px] font-medium px-2 py-0.5 rounded-full font-mono", color)}>
           {badge}
         </span>
       )}
-      <a
-        href={`#${id}`}
-        className="opacity-0 group-hover:opacity-60 transition-opacity text-muted-foreground text-base font-normal"
-        aria-hidden
-      >
-        #
-      </a>
+      <a href={`#${id}`} className="opacity-0 group-hover:opacity-40 transition-opacity text-muted-foreground text-sm font-normal" aria-hidden>#</a>
     </Tag>
   );
 }
 
-// ─── Feature badge ─────────────────────────────────────────────────────────────
+// ─── Callout ──────────────────────────────────────────────────────────────────
 
-export function Badge({
-  children,
-  color = "bg-primary/10 text-primary",
+const CALLOUT = {
+  tip:     { border: "border-emerald-500/30", bg: "bg-emerald-500/[0.05]", icon: "💡", label: "Tip",     text: "text-emerald-400" },
+  note:    { border: "border-sky-500/30",     bg: "bg-sky-500/[0.05]",     icon: "📝", label: "Note",    text: "text-sky-400" },
+  warning: { border: "border-amber-500/30",   bg: "bg-amber-500/[0.05]",   icon: "⚠️", label: "Warning", text: "text-amber-400" },
+  danger:  { border: "border-red-500/30",     bg: "bg-red-500/[0.05]",     icon: "🚨", label: "Danger",  text: "text-red-400" },
+};
+
+export function Callout({
+  type = "note", children, className,
 }: {
+  type?: "tip" | "note" | "warning" | "danger";
   children: React.ReactNode;
-  color?: string;
+  className?: string;
+}) {
+  const s = CALLOUT[type];
+  return (
+    <div className={cn("rounded-xl border p-4 my-5", s.border, s.bg, className)}>
+      <div className={cn("flex items-center gap-2 text-xs font-semibold uppercase tracking-wider mb-2", s.text)}>
+        <span>{s.icon}</span>
+        <span>{s.label}</span>
+      </div>
+      <div className="text-sm text-muted-foreground leading-relaxed">{children}</div>
+    </div>
+  );
+}
+
+// ─── Inline code ─────────────────────────────────────────────────────────────
+
+export function Code({ children }: { children: React.ReactNode }) {
+  return (
+    <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">
+      {children}
+    </code>
+  );
+}
+
+// ─── Badge ────────────────────────────────────────────────────────────────────
+
+export function Badge({ children, color = "bg-primary/10 text-primary border border-primary/15" }: {
+  children: React.ReactNode; color?: string;
 }) {
   return (
     <span className={cn("inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full", color)}>
       {children}
     </span>
-  );
-}
-
-// ─── Callout ───────────────────────────────────────────────────────────────────
-
-interface CalloutProps {
-  type?: "tip" | "note" | "warning" | "danger";
-  children: React.ReactNode;
-  className?: string;
-}
-
-const CALLOUT_STYLES = {
-  tip:     "border-emerald-500/40 bg-emerald-500/5 text-emerald-700 dark:text-emerald-300",
-  note:    "border-sky-500/40 bg-sky-500/5 text-sky-700 dark:text-sky-300",
-  warning: "border-amber-500/40 bg-amber-500/5 text-amber-700 dark:text-amber-300",
-  danger:  "border-destructive/40 bg-destructive/5 text-destructive",
-};
-
-const CALLOUT_LABELS = { tip: "💡 Tip", note: "📝 Note", warning: "⚠️ Warning", danger: "🚨 Danger" };
-
-export function Callout({ type = "note", children, className }: CalloutProps) {
-  return (
-    <div
-      className={cn(
-        "border-l-4 rounded-r-xl px-4 py-3 my-4 text-sm leading-relaxed",
-        CALLOUT_STYLES[type],
-        className
-      )}
-    >
-      <div className="font-semibold mb-1 text-xs uppercase tracking-wide opacity-70">
-        {CALLOUT_LABELS[type]}
-      </div>
-      {children}
-    </div>
   );
 }

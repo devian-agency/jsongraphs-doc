@@ -23,6 +23,7 @@ import {
   ThemeMethodsSection,
   ViewportMethodsSection,
   ExpandCollapseSection,
+  InvalidateCacheSection,
   DestroySection,
 } from "@/components/doc-sections-api";
 
@@ -66,45 +67,46 @@ export default function HomePage() {
             {/* Sidebar */}
             <DocSidebar />
 
-            {/* Main content */}
-            <main className="flex-1 min-w-0 py-16">
-              {/* ── Getting Started ── */}
-              <InstallSection />
-              <QuickStartSection />
-              <ReactUsageSection />
-              <FeaturesSection />
+        {/* Main content */}
+        <main className="flex-1 min-w-0 py-16">
+          {/* ── Getting Started ── */}
+          <InstallSection />
+          <QuickStartSection />
+          <ReactUsageSection />
+          <FeaturesSection />
 
-              {/* ── API Reference ── */}
-              <div className="h-px bg-border my-16" />
-              <JsonGraphClassSection />
-              <LoadMethodSection />
-              <SetLayoutSection />
-              <ThemeMethodsSection />
-              <ViewportMethodsSection />
-              <ExpandCollapseSection />
-              <DestroySection />
+          {/* ── API Reference ── */}
+          <div className="section-rule" />
+          <JsonGraphClassSection />
+          <LoadMethodSection />
+          <SetLayoutSection />
+          <ThemeMethodsSection />
+          <ViewportMethodsSection />
+          <ExpandCollapseSection />
+          <InvalidateCacheSection />
+          <DestroySection />
 
-              {/* ── Types ── */}
-              <div className="h-px bg-border my-16" />
-              <JsonSourceTypeSection />
-              <LayoutTypeSection />
-              <NodeTypeSection />
-              <GraphNodeTypeSection />
-              <GraphEdgeTypeSection />
-              <ParseOptionsSection />
-              <ParseLimitErrorSection />
-              <ThemeTypeSection />
+          {/* ── Types ── */}
+          <div className="section-rule" />
+          <JsonSourceTypeSection />
+          <LayoutTypeSection />
+          <NodeTypeSection />
+          <GraphNodeTypeSection />
+          <GraphEdgeTypeSection />
+          <ParseOptionsSection />
+          <ParseLimitErrorSection />
+          <ThemeTypeSection />
 
-              {/* ── Themes ── */}
-              <div className="h-px bg-border my-16" />
-              <ThemesSection />
-              <CustomThemeSection />
+          {/* ── Themes ── */}
+          <div className="section-rule" />
+          <ThemesSection />
+          <CustomThemeSection />
 
-              {/* ── Advanced ── */}
-              <div className="h-px bg-border my-16" />
-              <AdvancedCaptionSection />
-              <AdvancedStreamingSection />
-            </main>
+          {/* ── Advanced ── */}
+          <div className="section-rule" />
+          <AdvancedCaptionSection />
+          <AdvancedStreamingSection />
+        </main>
           </div>
         </div>
 

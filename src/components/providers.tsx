@@ -28,14 +28,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const saved = localStorage.getItem("jsongraphs-doc-theme") as Theme | null;
     const initial = saved ?? "dark";
     setTheme(initial);
-    document.documentElement.classList.toggle("dark", initial === "dark");
+    document.documentElement.classList.toggle("light", initial === "light");
   }, []);
 
   const toggle = React.useCallback(() => {
     setTheme((prev) => {
       const next = prev === "dark" ? "light" : "dark";
       localStorage.setItem("jsongraphs-doc-theme", next);
-      document.documentElement.classList.toggle("dark", next === "dark");
+      document.documentElement.classList.toggle("light", next === "light");
       return next;
     });
   }, []);

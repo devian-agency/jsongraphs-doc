@@ -119,10 +119,6 @@ export default function RootLayout({
       className={cn("h-full antialiased", inter.variable, geistMono.variable)}
       suppressHydrationWarning
     >
-      <head>
-        {/* Preload og-image for faster social crawlers */}
-        <link rel="preload" as="image" href="/assets/images/og-image.webp" />
-      </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         {children}
       </body>

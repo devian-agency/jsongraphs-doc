@@ -33,8 +33,8 @@ export function QuickStartSection() {
         Quick Start
       </SectionHeading>
       <p className="text-muted-foreground mb-6 leading-relaxed">
-        The simplest possible integration — create a <code className="font-mono text-xs px-1.5 py-0.5 rounded bg-accent/60 text-accent-foreground">JsonGraph</code> instance,
-        point it at a container element, and call <code className="font-mono text-xs px-1.5 py-0.5 rounded bg-accent/60 text-accent-foreground">load()</code>.
+        The simplest possible integration — create a <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">JsonGraph</code> instance,
+        point it at a container element, and call <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">load()</code>.
       </p>
       <CodeBlock language="typescript" filename="main.ts" code={`import { JsonGraph, darkTheme } from 'jsongraphs';
 
@@ -71,9 +71,9 @@ export function ReactUsageSection() {
         React / Next.js Integration
       </SectionHeading>
       <p className="text-muted-foreground mb-6 leading-relaxed">
-        Use a <code className="font-mono text-xs px-1.5 py-0.5 rounded bg-accent/60 text-accent-foreground">useRef</code> for the container and
-        initialize inside <code className="font-mono text-xs px-1.5 py-0.5 rounded bg-accent/60 text-accent-foreground">useEffect</code>.
-        Always call <code className="font-mono text-xs px-1.5 py-0.5 rounded bg-accent/60 text-accent-foreground">destroy()</code> in the cleanup function.
+        Use a <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">useRef</code> for the container and
+        initialize inside <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">useEffect</code>.
+        Always call <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">destroy()</code> in the cleanup function.
       </p>
       <CodeBlock language="typescript" filename="GraphViewer.tsx" code={`"use client";
 import { useEffect, useRef } from "react";

@@ -13,7 +13,7 @@ export function JsonSourceTypeSection() {
         JsonSource
       </SectionHeading>
       <p className="text-muted-foreground mb-4 leading-relaxed">
-        A union type representing every valid data source for <code className="font-mono text-xs px-1.5 py-0.5 rounded bg-accent/60 text-accent-foreground">graph.load()</code>.
+        A union type representing every valid data source for <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">graph.load()</code>.
       </p>
       <CodeBlock language="typescript" code={`type JsonSource =
   | File                       // Browser File API (e.g. from <input type="file">)
@@ -157,8 +157,8 @@ export function ParseOptionsSection() {
     <section id="type-parseoptions" className="scroll-mt-24">
       <SectionHeading id="type-parseoptions" level={3}>ParseOptions</SectionHeading>
       <p className="text-muted-foreground mb-4 leading-relaxed">
-        Low-level parser configuration passed via <code className="font-mono text-xs px-1.5 py-0.5 rounded bg-accent/60 text-accent-foreground">maxDepth</code> and{" "}
-        <code className="font-mono text-xs px-1.5 py-0.5 rounded bg-accent/60 text-accent-foreground">maxNodes</code> on <code className="font-mono text-xs px-1.5 py-0.5 rounded bg-accent/60 text-accent-foreground">JsonGraphOptions</code>.
+        Low-level parser configuration passed via <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">maxDepth</code> and{" "}
+        <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">maxNodes</code> on <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">JsonGraphOptions</code>.
       </p>
       <CodeBlock language="typescript" code={`interface ParseOptions {
   maxDepth?: number;  // Max nesting depth. Default: 200
@@ -176,8 +176,8 @@ export function ParseLimitErrorSection() {
     <section id="type-parselimiterror" className="scroll-mt-24">
       <SectionHeading id="type-parselimiterror" level={3}>ParseLimitError</SectionHeading>
       <p className="text-muted-foreground mb-4 leading-relaxed">
-        Error class thrown (and forwarded to <code className="font-mono text-xs px-1.5 py-0.5 rounded bg-accent/60 text-accent-foreground">onError</code>) when the parser
-        exceeds <code className="font-mono text-xs px-1.5 py-0.5 rounded bg-accent/60 text-accent-foreground">maxDepth</code> or <code className="font-mono text-xs px-1.5 py-0.5 rounded bg-accent/60 text-accent-foreground">maxNodes</code>.
+        Error class thrown (and forwarded to <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">onError</code>) when the parser
+        exceeds <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">maxDepth</code> or <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">maxNodes</code>.
       </p>
       <CodeBlock language="typescript" code={`import { ParseLimitError } from 'jsongraphs';
 

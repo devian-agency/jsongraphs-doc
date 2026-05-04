@@ -122,7 +122,7 @@ export function ThemeMethodsSection() {
           setTheme(theme: Theme)
         </SectionHeading>
         <p className="text-muted-foreground mb-4 leading-relaxed">
-          Applies a new <code className="font-mono text-xs px-1.5 py-0.5 rounded bg-accent/60 text-accent-foreground">Theme</code> object to
+          Applies a new <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">Theme</code> object to
           the canvas renderer, toolbar, search bar, and minimap simultaneously.
         </p>
         <CodeBlock language="typescript" code={`import { darkTheme, defaultTheme } from 'jsongraphs';
@@ -142,9 +142,9 @@ graph.setTheme(myCustomTheme);`} />
           toggleTheme()
         </SectionHeading>
         <p className="text-muted-foreground mb-4 leading-relaxed">
-          Convenience method that toggles between <code className="font-mono text-xs px-1.5 py-0.5 rounded bg-accent/60 text-accent-foreground">defaultTheme</code> (light)
-          and <code className="font-mono text-xs px-1.5 py-0.5 rounded bg-accent/60 text-accent-foreground">darkTheme</code>.
-          Equivalent to checking the current theme name and calling <code className="font-mono text-xs px-1.5 py-0.5 rounded bg-accent/60 text-accent-foreground">setTheme()</code>.
+          Convenience method that toggles between <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">defaultTheme</code> (light)
+          and <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">darkTheme</code>.
+          Equivalent to checking the current theme name and calling <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">setTheme()</code>.
         </p>
         <CodeBlock language="typescript" code={`// One-liner to toggle light ↔ dark
 graph.toggleTheme();`} />
@@ -195,7 +195,7 @@ export function ExpandCollapseSection() {
         expandAll() / collapseAll()
       </SectionHeading>
       <p className="text-muted-foreground mb-4 leading-relaxed">
-        <code className="font-mono text-xs px-1.5 py-0.5 rounded bg-accent/60 text-accent-foreground">expandAll()</code> expands every
+        <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">expandAll()</code> expands every
         <code className="font-mono text-xs px-1.5 py-0.5 mx-1 rounded bg-accent/60 text-accent-foreground">object</code> and
         <code className="font-mono text-xs px-1.5 py-0.5 mx-1 rounded bg-accent/60 text-accent-foreground">array</code> node.
         <code className="font-mono text-xs px-1.5 py-0.5 mx-1 rounded bg-accent/60 text-accent-foreground">collapseAll()</code> collapses all except the root node.
@@ -203,6 +203,22 @@ export function ExpandCollapseSection() {
       </p>
       <CodeBlock language="typescript" code={`graph.expandAll();    // Show all nodes
 graph.collapseAll();  // Collapse all (keep root visible)`} />
+    </section>
+  );
+}
+
+// ─── invalidateCache() ───────────────────────────────────────────────────────
+
+export function InvalidateCacheSection() {
+  return (
+    <section id="api-invalidatecache" className="scroll-mt-24">
+      <SectionHeading id="api-invalidatecache" level={3}>
+        invalidateCache()
+      </SectionHeading>
+      <p className="text-muted-foreground mb-4 leading-relaxed">
+        Manually trigger a re-calculation of the visible node tree. This is useful if you manipulate the internal <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">GraphModel</code> directly and need to force the O(V) visibility engine to rebuild the render cache.
+      </p>
+      <CodeBlock language="typescript" code={`graph.invalidateCache();`} />
     </section>
   );
 }

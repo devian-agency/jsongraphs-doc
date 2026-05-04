@@ -1,6 +1,5 @@
 "use client";
-
-import * as React from "react";
+import {JsonGraph, defaultTheme, darkTheme} from "jsongraphs";
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
@@ -8,11 +7,14 @@ import { cn } from "@/lib/utils";
 const DEMO_JSON = {
   library: "JsonGraphs",
   version: "1.0.2",
+  // __CAPTION__ : "JsonGraphs v1.0.2 - Demo",
   features: {
+    // __CAPTION__ : "Core Features",
     renderer: "Canvas 2D",
     parser: "Streaming",
     layouts: ["tree", "radial"],
     ui: {
+      // __CAPTION__ : "UI Elements",
       toolbar: true,
       minimap: true,
       search: true,
@@ -20,6 +22,7 @@ const DEMO_JSON = {
   },
   nodeTypes: ["object", "array", "string", "number", "boolean", "null"],
   performance: {
+    // __CAPTION__ : "Performance Metrics",
     maxNodes: 500000,
     maxDepth: 200,
     fps: 60,
@@ -54,14 +57,8 @@ export function GraphDemo({
 
   useEffect(() => {
     if (!containerRef.current) return;
-
-    let destroyed = false;
-    let graph: { destroy: () => void; load: (d: object) => void } | null = null;
-
-    import("jsongraphs").then(({ JsonGraph, defaultTheme, darkTheme }) => {
-      if (destroyed || !containerRef.current) return;
-
-      graph = new JsonGraph({
+    (async () => {
+      const graph = new JsonGraph({
         container: containerRef.current!,
         theme: theme === "dark" ? darkTheme : defaultTheme,
         layout,
@@ -69,14 +66,18 @@ export function GraphDemo({
         toolbar: showToolbar,
         search: showSearch,
       });
-
+  
       graph.load(data);
+      // Construct a full URL so JsonGraphs will fetch and parse it as a stream
+      // await graph.load(new URL("/assets/resources/house-price.json", window.location.origin));
       graphRef.current = graph;
-    });
+
+    })();
+
 
     return () => {
-      destroyed = true;
-      graph?.destroy();
+      (graphRef.current as JsonGraph)?.destroy();
+      graphRef.current = null;
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -103,38 +104,38 @@ interface FeatureCard {
 const FEATURES: FeatureCard[] = [
   {
     icon: "🚀",
-    title: "Canvas-Based Rendering",
-    description: "60 FPS rendering with optimized spatial indexing. Handles hundreds of thousands of nodes without breaking a sweat.",
+    title: "60 FPS Performance",
+    description: "Hardware-accelerated rendering powered by an O(V) Top-Down DFS algorithm. Only draws what's strictly visible, handling 500,000+ nodes.",
     color: "from-violet-500/10 to-violet-500/5",
   },
   {
     icon: "📡",
-    title: "Streaming Parser",
-    description: "Load multi-megabyte JSON files without blocking the UI thread. Feed fetch() streams directly as they download.",
+    title: "Asynchronous Parser",
+    description: "Built-in chunked streaming parser with automatic `yieldToMain()`. Load multi-megabyte JSON files without ever freezing the UI.",
     color: "from-sky-500/10 to-sky-500/5",
   },
   {
     icon: "📐",
-    title: "Multiple Layouts",
-    description: "Switch between hierarchical Tree and organic Radial layouts dynamically at runtime with a single method call.",
+    title: "AABB-Aware Layouts",
+    description: "Hierarchical Tree and organic Radial layouts feature Axis-Aligned Bounding Box (AABB) physics to guarantee zero node overlap.",
     color: "from-emerald-500/10 to-emerald-500/5",
   },
   {
-    icon: "🎨",
-    title: "Themeable",
-    description: "Built-in light and dark themes. Customize every color, size, and geometry via the structured Theme interface.",
+    icon: "🏷️",
+    title: "Floating Captions",
+    description: "Use the `__CAPTION__` key to inject semantic context. Automatically renders as floating pills or edge labels based on the structural depth.",
     color: "from-amber-500/10 to-amber-500/5",
   },
   {
     icon: "🧩",
     title: "Zero Dependencies",
-    description: "Pure TypeScript, no external runtime deps. Ultra-lightweight bundle size, easy to integrate anywhere.",
+    description: "Pure TypeScript, no external runtime deps. Ultra-lightweight bundle size, easy to integrate directly into Vite, Next.js, Rollup, or esbuild.",
     color: "from-rose-500/10 to-rose-500/5",
   },
   {
     icon: "🛠️",
-    title: "Built-in UI",
-    description: "Integrated MiniMap, Toolbar (zoom, fit, layout toggle), and Search overlay — all without any extra configuration.",
+    title: "Built-in UI & Themes",
+    description: "Integrated MiniMap, Toolbar, Search overlay, and Tooltips with rich Light & Dark themes fully out of the box.",
     color: "from-indigo-500/10 to-indigo-500/5",
   },
 ];
@@ -146,7 +147,7 @@ export function FeatureGrid() {
         <div
           key={f.title}
           className={cn(
-            "group p-5 rounded-2xl border border-border bg-gradient-to-br",
+            "group p-5 rounded-2xl border border-border bg-linear-to-br",
             f.color,
             "hover:border-primary/30 hover:shadow-md transition-all duration-300"
           )}
