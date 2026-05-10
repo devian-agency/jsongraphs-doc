@@ -87,7 +87,7 @@ export function Navbar() {
               <span className="hidden lg:inline min-w-[72px]">Search docs…</span>
               <kbd className="hidden lg:flex items-center gap-0.5 text-[10px] font-mono
                               border border-border/50 px-1.5 py-0.5 rounded bg-white/5">
-                ⌃K
+                ⌘ + K
               </kbd>
             </button>
 

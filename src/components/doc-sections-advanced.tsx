@@ -1,31 +1,63 @@
 import * as React from "react";
-import { SectionHeading, CodeBlock, Callout } from "@/components/doc-components";
-import { GraphDemo } from "@/components/graph-demo";
+import {
+  SectionHeading,
+  CodeBlock,
+  Callout,
+  Code,
+} from "@/components/doc-components";
+import { GraphDemo, DemoWindow } from "@/components/graph-demo";
 
 // ─── Themes section ───────────────────────────────────────────────────────────
 
 export function ThemesSection() {
   return (
     <section id="themes" className="scroll-mt-24">
-      <SectionHeading id="themes" badge="Themes" badgeColor="bg-amber-500/10 text-amber-600 dark:text-amber-400">
+      <SectionHeading
+        id="themes"
+        badge="Themes"
+        badgeColor="bg-amber-500/10 text-amber-600 dark:text-amber-400"
+      >
         Themes
       </SectionHeading>
       <p className="text-muted-foreground mb-6 leading-relaxed">
-        JsonGraphs ships with two polished built-in themes. Import and use them directly, or compose a custom theme.
+        JsonGraphs ships with two polished built-in themes. Import and use them
+        directly, or compose a custom theme.
       </p>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <div>
-          <h3 className="text-sm font-semibold mb-3 text-foreground">Light Theme (defaultTheme)</h3>
-          <GraphDemo theme="light" height="260px" showToolbar={false} showMinimap={false} showSearch={false} />
+          <h3 className="text-sm font-semibold mb-3 text-foreground">
+            Light Theme (defaultTheme)
+          </h3>
+          <GraphDemo
+            theme="light"
+            dataset="themes"
+            layout="radial"
+            height="240px"
+            showToolbar={false}
+            showMinimap={false}
+            showSearch={false}
+          />
         </div>
         <div>
-          <h3 className="text-sm font-semibold mb-3 text-foreground">Dark Theme (darkTheme)</h3>
-          <GraphDemo theme="dark" height="260px" showToolbar={false} showMinimap={false} showSearch={false} />
+          <h3 className="text-sm font-semibold mb-3 text-foreground">
+            Dark Theme (darkTheme)
+          </h3>
+          <GraphDemo
+            theme="dark"
+            dataset="themes"
+            layout="radial"
+            height="240px"
+            showToolbar={false}
+            showMinimap={false}
+            showSearch={false}
+          />
         </div>
       </div>
 
-      <CodeBlock language="typescript" code={`import { defaultTheme, darkTheme } from 'jsongraphs';
+      <CodeBlock
+        language="typescript"
+        code={`import { defaultTheme, darkTheme } from 'jsongraphs';
 
 // Apply light theme
 graph.setTheme(defaultTheme);
@@ -34,7 +66,8 @@ graph.setTheme(defaultTheme);
 graph.setTheme(darkTheme);
 
 // Toggle between them
-graph.toggleTheme();`} />
+graph.toggleTheme();`}
+      />
     </section>
   );
 }
@@ -48,10 +81,16 @@ export function CustomThemeSection() {
         Custom Theme
       </SectionHeading>
       <p className="text-muted-foreground mb-4 leading-relaxed">
-        Build a full custom theme by satisfying the <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">Theme</code> interface.
-        The easiest approach is to spread a built-in theme and override only the properties you want to change.
+        Build a full custom theme by satisfying the{" "}
+        <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">
+          Theme
+        </code>{" "}
+        interface. The easiest approach is to spread a built-in theme and
+        override only the properties you want to change.
       </p>
-      <CodeBlock language="typescript" code={`import { defaultTheme, type Theme } from 'jsongraphs';
+      <CodeBlock
+        language="typescript"
+        code={`import { defaultTheme, type Theme } from 'jsongraphs';
 
 const sunsetTheme: Theme = {
   ...defaultTheme,
@@ -82,10 +121,13 @@ const sunsetTheme: Theme = {
   },
 };
 
-graph.setTheme(sunsetTheme);`} />
+graph.setTheme(sunsetTheme);`}
+      />
       <Callout type="tip">
-        Use the spread operator (<code className="font-mono text-xs">...defaultTheme</code>) to inherit all defaults, then override only what you need.
-        This is much safer than building a theme from scratch.
+        Use the spread operator (
+        <code className="font-mono text-xs">...defaultTheme</code>) to inherit
+        all defaults, then override only what you need. This is much safer than
+        building a theme from scratch.
       </Callout>
     </section>
   );
@@ -96,21 +138,37 @@ graph.setTheme(sunsetTheme);`} />
 export function AdvancedCaptionSection() {
   return (
     <section id="advanced-caption" className="scroll-mt-24">
-      <SectionHeading id="advanced-caption" badge="Advanced" badgeColor="bg-rose-500/10 text-rose-600 dark:text-rose-400">
+      <SectionHeading
+        id="advanced-caption"
+        badge="Advanced"
+        badgeColor="bg-rose-500/10 text-rose-600 dark:text-rose-400"
+      >
         Advanced Usage
       </SectionHeading>
       <SectionHeading id="advanced-caption-h3" level={3}>
         __CAPTION__ Key — Floating Node & Edge Labels
       </SectionHeading>
       <p className="text-muted-foreground mb-4 leading-relaxed">
-        Add a special <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">__CAPTION__</code> key inside any JSON object
-        to inject contextual meaning into your graph.
+        Add a special{" "}
+        <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">
+          __CAPTION__
+        </code>{" "}
+        key inside any JSON object to inject contextual meaning into your graph.
       </p>
       <ul className="list-disc list-inside text-muted-foreground mb-4 leading-relaxed space-y-1">
-        <li><strong>Top-Level Nodes (Depth 1):</strong> Renders as a beautiful floating pill directly above the node itself.</li>
-        <li><strong>Deep Nodes (Depth &gt; 1):</strong> Renders elegantly centered on the incoming connecting edge.</li>
+        <li>
+          <strong>Top-Level Nodes (Depth 1):</strong> Renders as a beautiful
+          floating pill directly above the node itself.
+        </li>
+        <li>
+          <strong>Deep Nodes (Depth &gt; 1):</strong> Renders elegantly centered
+          on the incoming connecting edge.
+        </li>
       </ul>
-      <CodeBlock language="json" filename="example.json" code={`{
+      <CodeBlock
+        language="json"
+        filename="example.json"
+        code={`{
   "user": {
     "__CAPTION__": "is assigned to",
     "name": "Alice",
@@ -121,9 +179,41 @@ export function AdvancedCaptionSection() {
     "title": "JsonGraphs Docs",
     "status": "active"
   }
-}`} />
+}`}
+      />
+      <DemoWindow title="__CAPTION__ live demo">
+        <GraphDemo
+          layout="tree"
+          height="280px"
+          showToolbar={false}
+          showMinimap={false}
+          showSearch={false}
+          data={{
+            user: {
+              __CAPTION__: "is assigned to",
+              name: "Alice",
+              role: "admin",
+              active: true,
+            },
+            project: {
+              __CAPTION__: "Project Details",
+              title: "JsonGraphs Docs",
+              status: "active",
+              priority: "high",
+            },
+            metadata: {
+              __CAPTION__: "Build Info",
+              version: "1.1.1",
+              built: "2025-05-10",
+              env: "production",
+            },
+          }}
+        />
+      </DemoWindow>
       <Callout type="note">
-        The <code className="font-mono text-xs">__CAPTION__</code> node is automatically detected during parsing and extracted. The node itself is then marked <code className="font-mono text-xs">transparent</code> to keep the graph clean.
+        The <Code>__CAPTION__</Code> node is automatically detected during
+        parsing and extracted. The node itself is then marked{" "}
+        <Code>transparent</Code> to keep the graph clean.
       </Callout>
     </section>
   );
@@ -138,11 +228,15 @@ export function AdvancedStreamingSection() {
         Streaming Large Files
       </SectionHeading>
       <p className="text-muted-foreground mb-4 leading-relaxed">
-        JsonGraphs uses an asynchronous chunked streaming parser internally with automatic <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">yieldToMain()</code> integration. 
-        You can feed it a <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">ReadableStream&lt;Uint8Array&gt;</code> directly.
-        This guarantees the UI will <strong>never freeze</strong>, even when processing files with hundreds of thousands of nodes.
+        JsonGraphs processes large JSON files progressively without blocking the
+        UI. You can feed it a <Code>ReadableStream</Code> directly from a{" "}
+        <Code>fetch()</Code> response, a <Code>File</Code> from a file input, or
+        any JSON string or object. The graph renders nodes as they arrive — your
+        app stays fully responsive throughout.
       </p>
-      <CodeBlock language="typescript" code={`// Stream directly from fetch — renders as data arrives
+      <CodeBlock
+        language="typescript"
+        code={`// Stream directly from fetch — renders as data arrives
 const response = await fetch('/api/huge-dataset.json');
 await graph.load(response.body!);
 
@@ -161,10 +255,13 @@ const graph = new JsonGraph({
   onError: (err) => {
     console.error('Limit reached:', err.message);
   },
-});`} />
+});`}
+      />
       <Callout type="tip">
-        For very large JSON files (10MB+), always use the streaming approach via <code className="font-mono text-xs">fetch().body</code> or a <code className="font-mono text-xs">File</code> object.
-        Passing a pre-parsed string works too, but keeps the entire string in memory.
+        For very large JSON files (10MB+), always use the streaming approach via{" "}
+        <code className="font-mono text-xs">fetch().body</code> or a{" "}
+        <code className="font-mono text-xs">File</code> object. Passing a
+        pre-parsed string works too, but keeps the entire string in memory.
       </Callout>
     </section>
   );
@@ -181,22 +278,37 @@ export function Footer() {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
             <span className="text-sm text-muted-foreground">
-              <span className="font-semibold text-foreground">JsonGraphs</span>
-              {" "}— MIT License © {new Date().getFullYear()}{" "}
-              <a href="https://devian.agency" className="text-primary/80 hover:text-primary transition-colors" target="_blank" rel="noopener noreferrer">
+              <span className="font-semibold text-foreground">JsonGraphs</span>{" "}
+              — MIT License © {new Date().getFullYear()}{" "}
+              <a
+                href="https://devian.agency"
+                className="text-primary/80 hover:text-primary transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Devian Agency
               </a>
             </span>
           </div>
           <div className="flex items-center gap-1">
             {[
-              { label: "GitHub", href: "https://github.com/devian-agency/jsongraphs" },
-              { label: "npm",    href: "https://www.npmjs.com/package/jsongraphs" },
+              {
+                label: "GitHub",
+                href: "https://github.com/devian-agency/jsongraphs",
+              },
+              {
+                label: "npm",
+                href: "https://www.npmjs.com/package/jsongraphs",
+              },
               { label: "devian.agency", href: "https://devian.agency" },
             ].map((l, i, arr) => (
               <React.Fragment key={l.href}>
-                <a href={l.href} target="_blank" rel="noopener noreferrer"
-                   className="px-3 py-1.5 text-sm text-muted-foreground/60 hover:text-muted-foreground rounded-lg hover:bg-primary/8 transition-all">
+                <a
+                  href={l.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 text-sm text-muted-foreground/60 hover:text-muted-foreground rounded-lg hover:bg-primary/8 transition-all"
+                >
                   {l.label}
                 </a>
                 {i < arr.length - 1 && <span className="text-border">·</span>}

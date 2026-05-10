@@ -1,14 +1,13 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
 import { ArrowRight, Terminal, Zap, GitBranch, Cpu } from "lucide-react";
 import { useSearch } from "@/components/providers";
-import { GraphDemo } from "@/components/graph-demo";
+import { GraphDemo, DemoWindow } from "@/components/graph-demo";
 
 const STATS = [
   { icon: Cpu,       value: "60 FPS",    label: "Canvas rendering" },
-  { icon: Zap,       value: "500k",      label: "Max nodes" },
+  { icon: Zap,       value: "500k+",     label: "Nodes supported" },
   { icon: GitBranch, value: "0",         label: "Dependencies" },
 ];
 
@@ -118,22 +117,18 @@ export function HeroSection() {
 
         {/* Live demo */}
         <div className="fade-up fade-up-5 w-full max-w-5xl mt-16 px-2">
-          <div className="relative rounded-2xl overflow-hidden border border-primary/20 glow-violet">
-            {/* Terminal chrome */}
-            <div className="flex items-center gap-2 px-4 py-2.5 bg-card/80 backdrop-blur border-b border-border/50">
-              <span className="size-3 rounded-full bg-[#ff5f56]" />
-              <span className="size-3 rounded-full bg-[#ffbd2e]" />
-              <span className="size-3 rounded-full bg-[#27c93f]" />
-              <span className="ml-3 text-xs font-mono text-muted-foreground">Live Preview — JsonGraphs</span>
-              <span className="ml-auto text-[10px] text-emerald-400/70 flex items-center gap-1">
-                <span className="size-1.5 rounded-full bg-emerald-400/70 animate-pulse" />
-                interactive
-              </span>
-            </div>
-            <GraphDemo height="420px" showToolbar showMinimap showSearch />
-          </div>
+          <DemoWindow title="Live Preview" badge="interactive">
+            <GraphDemo
+              layout="tree"
+              dataset="general"
+              height="420px"
+              showToolbar
+              showMinimap
+              showSearch
+            />
+          </DemoWindow>
           <p className="text-center text-xs text-muted-foreground mt-3">
-            ↑ Fully interactive — zoom, pan, search, and toggle layouts
+            ↑ Fully interactive — zoom, pan, search, collapse nodes, and toggle layouts
           </p>
         </div>
       </div>

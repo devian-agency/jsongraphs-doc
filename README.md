@@ -14,25 +14,25 @@
 [Documentation](https://jsongraphs.devian.agency) · [npm](https://www.npmjs.com/package/jsongraphs) · [GitHub](https://github.com/devian-agency/jsongraphs)
 
 </div>
+---
+
+## Features
+
+| Feature | Details |
+|---|---|
+| 🌳 **Tree Layout** | Clean left-to-right hierarchy with zero node overlaps |
+| 🌀 **Radial Layout** | Organic outward-growing spiral — compact and overlap-free at any scale |
+| 🔄 **Streaming Parser** | Progressive loading of large files — the UI never freezes |
+| 🎨 **Theming** | Built-in light & dark themes, fully composable custom themes |
+| 🔍 **Search** | Full-text Ctrl+K search with live node highlighting |
+| 🗺️ **MiniMap** | Viewport-aware minimap with pan indicator |
+| 🪗 **Expand/Collapse** | Double-click any node to toggle its subtree |
+| 🏷️ **Captions** | `__CAPTION__` key injects floating pills and edge labels |
+| 📦 **Zero deps** | Pure TypeScript + Canvas 2D — no runtime dependencies |
 
 ---
 
-Visualize any JSON structure as a beautiful, interactive, canvas-rendered graph — directly in the browser. Built with a **streaming parser** and a **zero-dependency** architecture, JsonGraphs handles everything from tiny config objects to multi-megabyte datasets at a smooth 60 FPS.
-
-## ✨ Features
-
-| | Feature | Details |
-|---|---|---|
-| 🚀 | **Canvas Rendering** | 60 FPS, hardware-accelerated. Optimized spatial indexing for large graphs. |
-| 📡 | **Streaming Parser** | Load JSON files of any size without blocking the UI thread. Feed `fetch()` streams directly. |
-| 📐 | **Multiple Layouts** | Switch between **Tree** (hierarchical) and **Radial** (organic) layouts at runtime. |
-| 🎨 | **Themeable** | Built-in light & dark themes. Full `Theme` interface for custom palettes. |
-| 🛠️ | **Built-in UI** | Integrated **MiniMap**, **Search Bar**, and **Toolbar** — all opt-in. |
-| 🧩 | **Zero Dependencies** | No runtime deps. ESM-only. Works with Vite, Next.js, Rollup, esbuild. |
-
----
-
-## 📦 Installation
+## Installation
 
 ```bash
 npm install jsongraphs
@@ -42,285 +42,163 @@ yarn add jsongraphs
 bun add jsongraphs
 ```
 
-> **Note:** JsonGraphs is **ESM-only**. Make sure your bundler supports ESM (Vite, Next.js, Rollup, and esbuild all do out of the box).
-
 ---
 
-## 🚀 Quick Start
-
-### Vanilla JavaScript / TypeScript
+## Quick Start
 
 ```typescript
 import { JsonGraph, darkTheme } from 'jsongraphs';
 
-const container = document.getElementById('graph-container')!;
-
 const graph = new JsonGraph({
-  container,
-  theme: darkTheme,   // or defaultTheme for light
-  layout: 'tree',     // or 'radial'
+  container: document.getElementById('graph-container')!,
+  theme: darkTheme,
+  layout: 'tree',   // or 'radial'
   minimap: true,
   toolbar: true,
   search: true,
-  onLoad: (nodes, edges) => {
-    console.log(`Loaded ${nodes} nodes, ${edges} edges`);
-  },
 });
 
-// Load from a plain JS object
 await graph.load({
-  project: 'My App',
-  version: '2.0',
+  project: "My App",
+  version: "2.0",
   dependencies: {
-    react: '^19',
-    typescript: '^5',
+    react: "^19",
+    typescript: "^5",
   },
 });
 ```
 
-The container element gets `position: relative` and `overflow: hidden` applied automatically. Set an explicit **width and height** on it before constructing `JsonGraph`.
+---
 
-### React / Next.js
+## React / Next.js
 
 ```tsx
-'use client';
-import { useEffect, useRef } from 'react';
-import { JsonGraph, darkTheme, defaultTheme } from 'jsongraphs';
+"use client";
+import { useEffect, useRef } from "react";
+import { JsonGraph, darkTheme } from "jsongraphs";
 
-interface Props {
-  data: object;
-  dark?: boolean;
-}
-
-export function GraphViewer({ data, dark = true }: Props) {
-  const containerRef = useRef<HTMLDivElement>(null);
+export function GraphViewer({ data }: { data: object }) {
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!containerRef.current) return;
-
+    if (!ref.current) return;
     const graph = new JsonGraph({
-      container: containerRef.current,
-      theme: dark ? darkTheme : defaultTheme,
-      layout: 'tree',
+      container: ref.current,
+      theme: darkTheme,
+      layout: "tree",
       minimap: true,
       toolbar: true,
       search: true,
-      onLoad: (nodes, edges) => {
-        console.log(`Loaded ${nodes} nodes, ${edges} edges`);
-      },
-      onError: (err) => {
-        console.error('Parse error:', err);
-      },
     });
-
     graph.load(data);
-
-    // Always clean up to avoid memory leaks
     return () => graph.destroy();
-  }, [data, dark]);
+  }, [data]);
 
-  return <div ref={containerRef} style={{ width: '100%', height: '600px' }} />;
+  return <div ref={ref} style={{ width: "100%", height: "600px" }} />;
 }
 ```
 
+> **Next.js:** Add `"use client"` in App Router, or use `dynamic(() => import(…), { ssr: false })` in Pages Router.
+
 ---
 
-## ⚙️ Constructor Options (`JsonGraphOptions`)
+## API Reference
+
+### `new JsonGraph(options)`
 
 | Option | Type | Default | Description |
-|:---|:---|:---|:---|
-| `container` | `HTMLElement` | **required** | The host element for the graph canvas and overlay UI. |
-| `theme` | `Theme` | `defaultTheme` | Initial visual theme. Use `defaultTheme`, `darkTheme`, or a custom `Theme` object. |
-| `layout` | `'tree' \| 'radial'` | `'tree'` | Initial layout algorithm. Can be changed at runtime via `setLayout()`. |
-| `minimap` | `boolean` | `true` | Show the interactive mini-map overlay (bottom-right). |
-| `toolbar` | `boolean` | `true` | Show the toolbar overlay (zoom, fit, layout toggle, expand/collapse, theme). |
-| `search` | `boolean` | `true` | Show the node search bar overlay (top-center). |
-| `maxDepth` | `number` | `200` | Maximum JSON nesting depth before a `ParseLimitError` is thrown. |
-| `maxNodes` | `number` | `500_000` | Maximum total graph nodes before a `ParseLimitError` is thrown. |
-| `onLoad` | `(nodes: number, edges: number) => void` | — | Callback after parsing completes. |
-| `onError` | `(err: Error) => void` | — | Callback if parsing fails. |
+|---|---|---|---|
+| `container` | `HTMLElement` | **required** | Host element for the canvas |
+| `theme` | `Theme` | `defaultTheme` | Visual theme |
+| `layout` | `'tree' \| 'radial'` | `'tree'` | Initial layout |
+| `minimap` | `boolean` | `true` | Show minimap overlay |
+| `toolbar` | `boolean` | `true` | Show toolbar overlay |
+| `search` | `boolean` | `true` | Enable Ctrl+K search |
+| `showNodeCount` | `boolean` | `true` | Show total node count badge |
+| `maxNodes` | `number` | `500_000` | Parser node limit |
+| `maxDepth` | `number` | `200` | Parser depth limit |
+| `onLoad` | `(nodes, edges) => void` | `—` | Called when loading completes |
+| `onError` | `(err: Error) => void` | `—` | Called on parse errors |
+
+### Methods
+
+```typescript
+// Data
+await graph.load(source)           // File | ReadableStream | Response | string | object
+
+// Layout
+graph.setLayout('radial')          // Switch layout
+
+// Viewport
+graph.fitView()                    // Fit all visible nodes into view
+graph.zoomIn()                     // Zoom in
+graph.zoomOut()                    // Zoom out
+graph.resetZoom()                  // Reset to 100%
+
+// Theme
+graph.setTheme(myTheme)            // Apply a new theme
+graph.toggleTheme()                // Toggle light ↔ dark
+
+// Nodes
+graph.expandNode(id)               // Expand a collapsed node
+graph.collapseNode(id)             // Collapse an expanded node
+graph.expandAll()                  // Expand all nodes
+graph.collapseAll()                // Collapse all nodes
+
+// Lifecycle
+graph.destroy()                    // Unmount and clean up all resources
+```
 
 ---
 
-## 📖 API Reference
-
-### `load(source: JsonSource): Promise<void>`
-
-Parses and renders a JSON source. Accepts **five input formats**:
+## Data Sources
 
 ```typescript
-// Plain JS object (parsed synchronously)
-await graph.load({ name: 'Alice', age: 30 });
+// JS object
+await graph.load({ users: [] });
 
-// Raw JSON string (parsed synchronously)
-await graph.load('{"hello": "world"}');
+// JSON string
+await graph.load('{"users":[]}');
 
-// File from <input type="file"> (streamed)
-const file = fileInput.files[0];
+// Fetch response (streamed progressively)
+const res = await fetch('/data.json');
+await graph.load(res);
+
+// File input
+const file = input.files[0];
 await graph.load(file);
 
-// URL — auto-fetched and streamed
-await graph.load(new URL('https://api.example.com/data.json'));
-
-// ReadableStream — most memory-efficient for large files
-const res = await fetch('/huge-data.json');
-await graph.load(res.body!);
+// ReadableStream
+await graph.load(response.body);
 ```
 
 ---
 
-### `setLayout(layout: LayoutType): void`
+## Layouts
 
-Switches the layout algorithm at runtime and immediately re-renders.
+### Tree Layout
 
-```typescript
-graph.setLayout('radial'); // Switch to radial layout
-graph.setLayout('tree');   // Switch back to tree layout
+A clean, left-to-right hierarchical layout. Every subtree occupies its own vertical band — zero overlaps regardless of depth.
+
+```
+root
+├── users [array]
+│   ├── { name: "Alice", role: "admin" }
+│   └── { name: "Bob",   role: "user"  }
+└── config
+    ├── debug: false
+    └── version: "2.0"
 ```
 
-> **Tree layout** is best for deep, hierarchical JSON.  
-> **Radial layout** excels with wide, shallow, or network-like structures.
+### Radial Layout
+
+An organic, outward-growing spiral layout inspired by natural packing patterns. Nodes radiate from the center with siblings clustered together. Overlap-free at any scale.
 
 ---
 
-### `setTheme(theme: Theme): void`
+## `__CAPTION__` Keys
 
-Applies a `Theme` object to all layers — canvas, toolbar, search bar, and minimap simultaneously.
-
-```typescript
-import { darkTheme, defaultTheme } from 'jsongraphs';
-
-graph.setTheme(darkTheme);    // Apply dark theme
-graph.setTheme(defaultTheme); // Apply light theme
-graph.setTheme(myCustomTheme); // Apply a custom theme
-```
-
----
-
-### `toggleTheme(): void`
-
-Convenience method that toggles between `defaultTheme` (light) and `darkTheme`.
-
-```typescript
-graph.toggleTheme();
-```
-
----
-
-### `fitView(): void`
-
-Resets pan and zoom so all visible nodes fit within the container with 80 px padding.
-
-```typescript
-graph.fitView();
-```
-
----
-
-### `zoomIn() / zoomOut(): void`
-
-Smooth programmatic zoom toward the container midpoint. `zoomIn()` scales ×1.15, `zoomOut()` scales ×0.87.
-
-```typescript
-graph.zoomIn();   // ×1.15
-graph.zoomOut();  // ×0.87
-```
-
----
-
-### `expandAll() / collapseAll(): void`
-
-Expand or collapse all `object` and `array` nodes. `collapseAll()` keeps the root node visible.
-
-```typescript
-graph.expandAll();   // Show all nodes
-graph.collapseAll(); // Collapse all (root stays visible)
-```
-
----
-
-### `destroy(): void`
-
-Cancels pending animation frames, destroys the canvas renderer, and unmounts all overlay elements. **Always call this** when removing the graph to avoid memory leaks.
-
-```typescript
-// React useEffect cleanup
-return () => graph.destroy();
-```
-
----
-
-## 🎨 Themes
-
-### Built-in Themes
-
-```typescript
-import { defaultTheme, darkTheme } from 'jsongraphs';
-
-graph.setTheme(defaultTheme); // Light
-graph.setTheme(darkTheme);    // Dark
-graph.toggleTheme();          // Toggle between them
-```
-
-### Node Type Colors
-
-Each JSON type has its own distinct color in both themes:
-
-| Type | Light | Dark |
-|:---|:---|:---|
-| `object` | Purple | Deep purple |
-| `array` | Green | Deep green |
-| `string` | Blue | Deep blue |
-| `number` | Lime | Deep lime |
-| `boolean` | Amber | Deep amber |
-| `null` | Gray | Deep gray |
-
-### Custom Theme
-
-Spread a built-in theme and override only what you need:
-
-```typescript
-import { defaultTheme, type Theme } from 'jsongraphs';
-
-const sunsetTheme: Theme = {
-  ...defaultTheme,
-  name: 'sunset',
-  background: '#1a0a00',
-  gridLine: 'rgba(255,120,50,0.05)',
-
-  nodeColors: {
-    object:  { fill: '#2a1000', stroke: '#ff6820', text: '#ffd0a0', badge: '#ff6820' },
-    array:   { fill: '#001a10', stroke: '#20d080', text: '#a0ffc8', badge: '#20d080' },
-    string:  { fill: '#00101a', stroke: '#20a0ff', text: '#a0d8ff', badge: '#20a0ff' },
-    number:  { fill: '#1a1000', stroke: '#c0b020', text: '#ffe890', badge: '#c0b020' },
-    boolean: { fill: '#1a0020', stroke: '#c040c0', text: '#f0a0f0', badge: '#c040c0' },
-    null:    { fill: '#151510', stroke: '#808070', text: '#c8c8b0', badge: '#808070' },
-  },
-
-  edge: {
-    ...defaultTheme.edge,
-    stroke: 'rgba(255,120,50,0.4)',
-    highlight: '#ff6820',
-  },
-
-  ui: {
-    ...defaultTheme.ui,
-    panelBg: 'rgba(26,10,0,0.92)',
-    text: '#ffd0a0',
-    focusRing: '#ff6820',
-  },
-};
-
-graph.setTheme(sunsetTheme);
-```
-
----
-
-## 💡 Advanced Usage
-
-### `__CAPTION__` Key — Custom Edge Labels
-
-Add a `"__CAPTION__"` key inside any JSON object to place a descriptive label in a pill at the midpoint of that node's incoming edge. The node itself is hidden — only the caption is shown.
+Add contextual labels to any node by including a `__CAPTION__` key:
 
 ```json
 {
@@ -328,161 +206,68 @@ Add a `"__CAPTION__"` key inside any JSON object to place a descriptive label in
     "__CAPTION__": "is assigned to",
     "name": "Alice",
     "role": "admin"
-  },
-  "project": {
-    "__CAPTION__": "belongs to",
-    "title": "My App",
-    "status": "active"
   }
 }
 ```
 
-### Streaming Large Files
+- **Top-level nodes** → floating pill rendered above the node
+- **Deeper nodes** → label centered on the incoming edge
 
-JsonGraphs uses a chunked streaming parser internally. Feed it a `ReadableStream<Uint8Array>` directly so it starts rendering while still downloading:
+The `__CAPTION__` node is automatically hidden — only its value is used as the label.
 
-```typescript
-// Start rendering while data is still downloading
-const response = await fetch('/api/huge-dataset.json');
-await graph.load(response.body!);
+---
 
-// From a file input (also streamed — no full read into memory)
-fileInput.addEventListener('change', async (e) => {
-  const file = (e.target as HTMLInputElement).files![0];
-  await graph.load(file);
-});
-```
-
-### Handling Parse Limits
+## Theming
 
 ```typescript
-import { JsonGraph, ParseLimitError } from 'jsongraphs';
+import { defaultTheme, type Theme } from 'jsongraphs';
 
-const graph = new JsonGraph({
-  container,
-  maxNodes: 50_000,
-  maxDepth: 100,
-  onError: (err) => {
-    if (err instanceof ParseLimitError) {
-      if (err.kind === 'nodes') {
-        console.warn('Too many nodes — increase maxNodes option');
-      } else if (err.kind === 'depth') {
-        console.warn('JSON too deeply nested — increase maxDepth option');
-      }
-    }
+const myTheme: Theme = {
+  ...defaultTheme,
+  name: 'custom',
+  background: '#0a0a10',
+  nodeColors: {
+    object:  { fill: '#1a1040', stroke: '#6366f1', text: '#c4b5fd', badge: '#6366f1' },
+    array:   { fill: '#0a2010', stroke: '#22c55e', text: '#86efac', badge: '#22c55e' },
+    string:  { fill: '#0a1828', stroke: '#3b82f6', text: '#93c5fd', badge: '#3b82f6' },
+    number:  { fill: '#1a1400', stroke: '#eab308', text: '#fde047', badge: '#eab308' },
+    boolean: { fill: '#1a0a14', stroke: '#ec4899', text: '#f9a8d4', badge: '#ec4899' },
+    null:    { fill: '#141414', stroke: '#6b7280', text: '#9ca3af', badge: '#6b7280' },
   },
-});
+};
+
+graph.setTheme(myTheme);
 ```
 
 ---
 
-## 📐 Type Reference
+## Performance
 
-### `JsonSource`
-
-```typescript
-type JsonSource =
-  | File                        // Browser File API
-  | ReadableStream<Uint8Array>  // WHATWG Streams
-  | string                      // Raw JSON string
-  | URL                         // Fetched and streamed automatically
-  | object;                     // Any plain JS object
-```
-
-### `LayoutType`
-
-```typescript
-type LayoutType = 'tree' | 'radial';
-```
-
-### `NodeType`
-
-```typescript
-type NodeType = 'object' | 'array' | 'string' | 'number' | 'boolean' | 'null';
-```
-
-### `GraphNode`
-
-```typescript
-interface GraphNode {
-  id: string;
-  type: NodeType;
-  key?: string;          // JSON key that produced this node (undefined for root)
-  value?: string;        // Serialized display value for primitives
-  childCount: number;    // Number of direct children
-  depth: number;         // Zero-indexed depth from root
-  parentId?: string;     // Parent node id (undefined for root)
-  expanded: boolean;     // Whether this node is expanded in the UI
-  pos: NodePosition;     // Layout position { x, y, vx, vy }
-  width: number;         // Bounding box width (set after layout)
-  height: number;        // Bounding box height (set after layout)
-  highlighted: boolean;  // True when matching a search query
-  hovered: boolean;      // True when pointer is over this node
-  alpha: number;         // Fade-in animation progress (0→1)
-  transparent?: boolean; // Anonymous array-item wrapper (hidden from view)
-}
-```
-
-### `GraphEdge`
-
-```typescript
-interface GraphEdge {
-  id: string;
-  sourceId: string;
-  targetId: string;
-  label?: string;    // JSON key connecting these nodes
-  caption?: string;  // Pill label at edge midpoint (__CAPTION__ feature)
-  alpha: number;     // Fade-in animation progress (0→1)
-}
-```
-
-### `ParseOptions`
-
-```typescript
-interface ParseOptions {
-  maxDepth?: number;  // Max nesting depth. Default: 200
-  maxNodes?: number;  // Max total nodes.   Default: 500_000
-  chunkSize?: number; // Text decoder chunk in bytes. Default: 65_536 (64 KB)
-}
-```
-
-### `ParseLimitError`
-
-```typescript
-class ParseLimitError extends Error {
-  readonly kind: 'depth' | 'nodes'; // Which limit was exceeded
-}
-```
-
-### `Theme` (abridged)
-
-```typescript
-interface Theme {
-  name: string;
-  background: string;
-  gridLine: string;
-  nodeColors: Record<NodeType, NodeColors>; // Per-type fill/stroke/text/badge
-  edge: {
-    stroke: string; highlight: string; width: number;
-    captionBg: string; captionText: string; captionBorder: string;
-  };
-  font: { family: string; keySize: number; valueSize: number; typeSize: number; };
-  node: {
-    radius: number; paddingX: number; paddingY: number; minWidth: number;
-    shadowBlur: number; shadowColor: string; shadowOffset: number;
-  };
-  ui: {
-    panelBg: string; panelBorder: string; panelShadow: string;
-    btnHover: string; btnActive: string;
-    text: string; textMuted: string;
-    inputBg: string; inputText: string; inputPlaceholder: string;
-    focusRing: string; separator: string; minimapViewport: string;
-  };
-}
-```
+| Metric | Value |
+|---|---|
+| Rendering | 60 FPS Canvas 2D |
+| Max recommended nodes | 500,000 |
+| Large file loading | Progressive — UI stays responsive |
+| Bundle size | < 50 kB minzipped |
+| Dependencies | 0 |
 
 ---
 
-## 📄 License
+## Browser Support
+
+All modern browsers with Canvas 2D and ResizeObserver support:
+
+- Chrome 88+, Edge 88+, Firefox 90+, Safari 14+
+
+---
+
+## License
 
 MIT © [Devian Agency](https://devian.agency)
+
+---
+
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.  
+Security issues: see [SECURITY.md](./SECURITY.md).
