@@ -223,7 +223,8 @@ export function HeroSection() {
           >
             <Terminal className="size-3.5" />
             <span>Search docs</span>
-            <kbd className="ml-1 text-[10px] font-mono border border-[#4d8fff]/20 px-1.5 py-0.5 rounded-md bg-[#111928]/80">⌃K</kbd>
+            <kbd className="ml-1 text-sm font-mono border border-[#4d8fff]/20 px-1.5 py-0.5 rounded-md bg-[#111928]/80">
+              ⌘ + k</kbd>
           </button>
         </div>
 
