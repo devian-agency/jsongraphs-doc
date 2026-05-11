@@ -21,7 +21,7 @@ export function Navbar() {
   const [menuOpen, setMenuOpen] = React.useState(false);
 
   React.useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
+    const onScroll = () => setScrolled(window.scrollY > 24);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -32,7 +32,7 @@ export function Navbar() {
         className={cn(
           "fixed top-0 inset-x-0 z-40 transition-all duration-500",
           scrolled
-            ? "bg-[#0d0d14]/80 backdrop-blur-2xl border-b border-primary/10 shadow-2xl shadow-black/20"
+            ? "bg-[#070b14]/85 backdrop-blur-2xl border-b border-[#4d8fff]/10 shadow-[0_4px_32px_rgba(0,0,0,0.4)]"
             : "bg-transparent"
         )}
       >
@@ -41,7 +41,7 @@ export function Navbar() {
           {/* Logo */}
           <a href="#" id="nav-logo" className="flex items-center gap-2.5 shrink-0 group mr-2">
             <div className="relative">
-              <div className="absolute inset-0 rounded-lg bg-primary/30 blur-md group-hover:bg-primary/50 transition-colors" />
+              <div className="absolute inset-0 rounded-lg bg-[#4d8fff]/25 blur-md group-hover:bg-[#4d8fff]/45 transition-colors" />
               <Image
                 src="/logo/logo.webp"
                 alt="JsonGraphs"
@@ -51,11 +51,16 @@ export function Navbar() {
                 priority
               />
             </div>
-            <span className="font-bold text-base grad">JsonGraphs</span>
+            <span
+              className="font-bold text-base grad"
+              style={{ letterSpacing: "-0.01em" }}
+            >
+              JsonGraphs
+            </span>
           </a>
 
           {/* Separator */}
-          <div className="hidden md:block h-4 w-px bg-border/60" />
+          <div className="hidden md:block h-4 w-px bg-[#4d8fff]/15" />
 
           {/* Links — desktop */}
           <div className="hidden md:flex items-center gap-0.5 flex-1">
@@ -63,8 +68,8 @@ export function Navbar() {
               <a
                 key={link.href}
                 href={link.href}
-                className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground
-                           rounded-lg hover:bg-primary/8 transition-all duration-200"
+                className="px-3 py-1.5 text-sm text-[#5a7094] hover:text-foreground
+                           rounded-lg hover:bg-[#4d8fff]/8 transition-all duration-200"
               >
                 {link.label}
               </a>
@@ -79,31 +84,17 @@ export function Navbar() {
               id="navbar-search-btn"
               onClick={() => setOpen(true)}
               className="hidden sm:flex items-center gap-2.5 h-8 px-3 text-xs
-                         text-muted-foreground border border-border/60 rounded-lg
-                         bg-white/3 hover:bg-primary/8 hover:border-primary/20
+                         text-[#5a7094] border border-[#4d8fff]/15 rounded-lg
+                         bg-[#4d8fff]/4 hover:bg-[#4d8fff]/10 hover:border-[#4d8fff]/28 hover:text-foreground
                          transition-all duration-200 cursor-pointer group"
             >
-              <Search className="size-3 text-muted-foreground/70 group-hover:text-primary transition-colors" />
+              <Search className="size-3 text-[#4d8fff]/60 group-hover:text-[#4d8fff] transition-colors" />
               <span className="hidden lg:inline min-w-[72px]">Search docs…</span>
               <kbd className="hidden lg:flex items-center gap-0.5 text-[10px] font-mono
-                              border border-border/50 px-1.5 py-0.5 rounded bg-white/5">
+                              border border-[#4d8fff]/15 px-1.5 py-0.5 rounded bg-[#070b14]/60">
                 ⌘ + K
               </kbd>
             </button>
-
-            {/* GitHub */}
-            {/* <a
-              id="nav-github"
-              href="https://github.com/devian-agency/jsongraphs"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center size-8 text-muted-foreground/70
-                         hover:text-foreground rounded-lg hover:bg-primary/8
-                         transition-all duration-200"
-              aria-label="View on GitHub"
-            >
-              <Github className="size-4" />
-            </a> */}
 
             {/* npm */}
             <a
@@ -112,8 +103,8 @@ export function Navbar() {
               target="_blank"
               rel="noopener noreferrer"
               className="hidden sm:flex items-center gap-1 h-8 px-2.5 text-[11px] font-medium
-                         border border-border/60 rounded-lg text-muted-foreground/70
-                         hover:text-foreground hover:border-primary/20 hover:bg-primary/8
+                         border border-[#4d8fff]/15 rounded-lg text-[#5a7094]
+                         hover:text-foreground hover:border-[#4d8fff]/28 hover:bg-[#4d8fff]/8
                          transition-all duration-200"
               aria-label="View on npm"
             >
@@ -124,8 +115,8 @@ export function Navbar() {
             <button
               id="nav-theme-toggle"
               onClick={toggle}
-              className="flex items-center justify-center size-8 text-muted-foreground/70
-                         hover:text-foreground rounded-lg hover:bg-primary/8
+              className="flex items-center justify-center size-8 text-[#5a7094]
+                         hover:text-foreground rounded-lg hover:bg-[#4d8fff]/8
                          transition-all duration-200 cursor-pointer"
               aria-label="Toggle theme"
             >
@@ -137,8 +128,8 @@ export function Navbar() {
             {/* Mobile menu btn */}
             <button
               id="nav-mobile-menu"
-              className="md:hidden flex items-center justify-center size-8 text-muted-foreground/70
-                         hover:text-foreground rounded-lg hover:bg-primary/8
+              className="md:hidden flex items-center justify-center size-8 text-[#5a7094]
+                         hover:text-foreground rounded-lg hover:bg-[#4d8fff]/8
                          transition-all duration-200 cursor-pointer"
               onClick={() => setMenuOpen((v) => !v)}
               aria-label="Toggle menu"
@@ -156,9 +147,9 @@ export function Navbar() {
       {/* Mobile drawer */}
       {menuOpen && (
         <div className="fixed inset-0 z-30 md:hidden pt-[60px]" onClick={() => setMenuOpen(false)}>
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
           <div
-            className="absolute top-[60px] inset-x-0 bg-[#0d0d14]/95 backdrop-blur-xl border-b border-primary/10 px-4 py-4"
+            className="absolute top-[60px] inset-x-0 bg-[#070b14]/96 backdrop-blur-xl border-b border-[#4d8fff]/10 px-4 py-4"
             onClick={(e) => e.stopPropagation()}
           >
             {NAV_LINKS.map((link) => (
@@ -166,17 +157,17 @@ export function Navbar() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setMenuOpen(false)}
-                className="flex items-center px-3 py-2.5 text-sm text-muted-foreground
-                           hover:text-foreground hover:bg-primary/8 rounded-lg transition-colors"
+                className="flex items-center px-3 py-2.5 text-sm text-[#5a7094]
+                           hover:text-foreground hover:bg-[#4d8fff]/8 rounded-lg transition-colors"
               >
                 {link.label}
               </a>
             ))}
-            <div className="mt-3 pt-3 border-t border-border/40 flex items-center gap-2">
+            <div className="mt-3 pt-3 border-t border-[#4d8fff]/10 flex items-center gap-2">
               <button onClick={() => { setOpen(true); setMenuOpen(false); }}
                 className="flex-1 flex items-center justify-center gap-2 h-9 text-xs
-                           border border-border/60 rounded-lg text-muted-foreground hover:text-foreground
-                           hover:bg-primary/8 transition-colors cursor-pointer">
+                           border border-[#4d8fff]/15 rounded-lg text-[#5a7094] hover:text-foreground
+                           hover:bg-[#4d8fff]/8 transition-colors cursor-pointer">
                 <Search className="size-3" /> Search docs
               </button>
             </div>

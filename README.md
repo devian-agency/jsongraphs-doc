@@ -11,7 +11,7 @@
 [![License](https://img.shields.io/npm/l/jsongraphs?color=%23ffcb6b&style=flat-square)](./LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-ready-blue?style=flat-square)](https://www.typescriptlang.org/)
 
-[Documentation](https://jsongraphs.devian.agency) · [npm](https://www.npmjs.com/package/jsongraphs) · [GitHub](https://github.com/devian-agency/jsongraphs)
+[Documentation](https://jsongraphs.devian.in) · [npm](https://www.npmjs.com/package/jsongraphs) · [GitHub](https://github.com/devian-agency/jsongraphs)
 
 </div>
 ---
@@ -263,7 +263,7 @@ All modern browsers with Canvas 2D and ResizeObserver support:
 
 ## License
 
-MIT © [Devian Agency](https://devian.agency)
+MIT © [Devian Agency](https://devian.in)
 
 ---
 

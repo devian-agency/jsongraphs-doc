@@ -223,7 +223,9 @@ export function GraphDemo({
   return (
     <div
       className={cn(
-        "rounded-2xl overflow-hidden border border-border glow",
+        "rounded-2xl overflow-hidden border border-[#4d8fff]/15",
+        "shadow-[0_0_30px_rgba(77,143,255,0.05)]",
+        "hover:border-[#4d8fff]/25 transition-colors duration-300",
         className,
       )}
       style={{ height }}
@@ -248,18 +250,31 @@ export function DemoWindow({
   ...props
 }: DemoWindowProps) {
   return (
-    <div className="rounded-2xl overflow-hidden border border-primary/20 glow-violet">
+    <div
+      className="rounded-2xl overflow-hidden"
+      style={{
+        border: "1px solid rgba(77,143,255,0.18)",
+        boxShadow: "0 0 40px rgba(77,143,255,0.07), 0 0 0 1px rgba(0,212,255,0.03)",
+      }}
+    >
       {/* Chrome bar */}
-      <div className="flex items-center gap-2 px-4 py-2.5 bg-card/80 backdrop-blur border-b border-border/50">
-        <span className="size-3 rounded-full bg-[#ff5f56]" />
-        <span className="size-3 rounded-full bg-[#ffbd2e]" />
-        <span className="size-3 rounded-full bg-[#27c93f]" />
-        <span className="ml-3 text-xs font-mono text-muted-foreground">
+      <div
+        className="flex items-center gap-2 px-4 py-2.5 border-b border-[#4d8fff]/12"
+        style={{ background: "rgba(8,14,26,0.95)" }}
+      >
+        {/* macOS traffic lights */}
+        <span className="size-2.5 rounded-full bg-[#ff5f57]" />
+        <span className="size-2.5 rounded-full bg-[#ffbd2e]" />
+        <span className="size-2.5 rounded-full bg-[#28ca41]" />
+        <span className="ml-3 text-xs font-mono text-[#2d4060]">
           {title} — JsonGraphs
         </span>
         {badge && (
-          <span className="ml-auto text-[10px] text-emerald-400/70 flex items-center gap-1">
-            <span className="size-1.5 rounded-full bg-emerald-400/70 animate-pulse" />
+          <span className="ml-auto text-[10px] text-[#00d4ff]/70 flex items-center gap-1.5">
+            <span
+              className="size-1.5 rounded-full bg-[#00d4ff] animate-pulse"
+              style={{ boxShadow: "0 0 6px rgba(0,212,255,0.8)" }}
+            />
             {badge}
           </span>
         )}
@@ -452,10 +467,10 @@ export function LayoutToggleDemo() {
             key={l}
             onClick={() => switchLayout(l)}
             className={cn(
-              "px-4 py-1.5 rounded-lg text-xs font-medium border transition-all cursor-pointer",
+              "px-4 py-1.5 rounded-lg text-xs font-medium border transition-all duration-200 cursor-pointer",
               layout === l
-                ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20"
-                : "bg-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground",
+                ? "bg-[#4d8fff] text-[#070b14] border-[#4d8fff] shadow-lg shadow-[#4d8fff]/25 font-semibold"
+                : "bg-[#0c1220] border-[#4d8fff]/15 text-[#3d5a80] hover:border-[#4d8fff]/35 hover:text-foreground hover:bg-[#4d8fff]/8",
             )}
           >
             {l === "tree" ? "🌳 Tree" : "🌀 Radial"}
@@ -464,7 +479,7 @@ export function LayoutToggleDemo() {
       </div>
       <div
         ref={containerRef}
-        className="w-full h-72 rounded-2xl border border-border"
+        className="w-full h-72 rounded-2xl border border-[#4d8fff]/12"
       />
     </div>
   );

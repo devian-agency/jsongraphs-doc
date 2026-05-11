@@ -271,49 +271,73 @@ const graph = new JsonGraph({
 
 export function Footer() {
   return (
-    <footer className="relative mt-24 border-t border-primary/10">
-      {/* Subtle gradient top */}
-      <div className="absolute -top-px inset-x-0 h-px bg-linear-to-r from-transparent via-primary/40 to-transparent" />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground">
-              <span className="font-semibold text-foreground">JsonGraphs</span>{" "}
-              — MIT License © {new Date().getFullYear()}{" "}
-              <a
-                href="https://devian.agency"
-                className="text-primary/80 hover:text-primary transition-colors"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Devian Agency
-              </a>
-            </span>
-          </div>
-          <div className="flex items-center gap-1">
-            {[
-              {
-                label: "GitHub",
-                href: "https://github.com/devian-agency/jsongraphs",
-              },
-              {
-                label: "npm",
-                href: "https://www.npmjs.com/package/jsongraphs",
-              },
-              { label: "devian.agency", href: "https://devian.agency" },
-            ].map((l, i, arr) => (
-              <React.Fragment key={l.href}>
+    <footer className="relative mt-24">
+      {/* Top gradient rule */}
+      <div className="absolute -top-px inset-x-0 h-px bg-linear-to-r from-transparent via-[#4d8fff]/30 to-transparent" />
+
+      {/* Subtle navy band */}
+      <div
+        style={{
+          background: "linear-gradient(to bottom, rgba(8,14,26,0.0) 0%, rgba(5,8,16,0.95) 100%)",
+          borderTop: "1px solid rgba(77,143,255,0.08)",
+        }}
+      >
+        {/* Constellation-like divider */}
+        <div className="flex items-center justify-center gap-3 pt-10 pb-6">
+          <div className="h-px flex-1 max-w-40 bg-linear-to-r from-transparent to-[#4d8fff]/15" />
+          <span
+            className="size-1.5 rounded-full bg-[#4d8fff]"
+            style={{ boxShadow: "0 0 8px rgba(77,143,255,0.8)" }}
+          />
+          <span
+            className="size-2 rounded-full bg-[#00d4ff]/60"
+            style={{ boxShadow: "0 0 10px rgba(0,212,255,0.6)" }}
+          />
+          <span
+            className="size-1.5 rounded-full bg-[#4d8fff]"
+            style={{ boxShadow: "0 0 8px rgba(77,143,255,0.8)" }}
+          />
+          <div className="h-px flex-1 max-w-40 bg-linear-to-l from-transparent to-[#4d8fff]/15" />
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+            {/* Brand */}
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-[#3d5a80]">
+                <span className="font-semibold text-[#5a7094]">JsonGraphs</span>
+                {" "}&mdash; MIT License &copy; {new Date().getFullYear()}{" "}
                 <a
-                  href={l.href}
+                  href="https://devian.in"
+                  className="text-[#4d8fff]/70 hover:text-[#4d8fff] transition-colors"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-1.5 text-sm text-muted-foreground/60 hover:text-muted-foreground rounded-lg hover:bg-primary/8 transition-all"
                 >
-                  {l.label}
+                  Devian Agency
                 </a>
-                {i < arr.length - 1 && <span className="text-border">·</span>}
-              </React.Fragment>
-            ))}
+              </span>
+            </div>
+
+            {/* Links */}
+            <div className="flex items-center gap-1">
+              {[
+                // { label: "GitHub",        href: "https://github.com/devian-agency/jsongraphs" },
+                { label: "npm",           href: "https://www.npmjs.com/package/jsongraphs" },
+                { label: "Devian Agency", href: "https://devian.in" },
+              ].map((l, i, arr) => (
+                <React.Fragment key={l.href}>
+                  <a
+                    href={l.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1.5 text-sm text-[#2d4060] hover:text-[#5a7094] rounded-lg hover:bg-[#4d8fff]/6 transition-all"
+                  >
+                    {l.label}
+                  </a>
+                  {i < arr.length - 1 && <span className="text-[#1e3050]">·</span>}
+                </React.Fragment>
+              ))}
+            </div>
           </div>
         </div>
       </div>

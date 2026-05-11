@@ -1,4 +1,3 @@
-import * as React from "react";
 import { SectionHeading, CodeBlock, PropTable, Callout } from "@/components/doc-components";
 
 // ─── JsonGraph Constructor ────────────────────────────────────────────────────

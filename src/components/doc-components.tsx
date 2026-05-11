@@ -4,7 +4,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Check, Copy, ChevronRight } from "lucide-react";
 
-// ─── Syntax highlighter (single-pass character tokenizer) ─────────────────────
+// ─── Syntax highlighter (single-pass character tokenizer) ──────────────────────
 // We HTML-escape the raw source FIRST, then walk character-by-character
 // producing colored spans. Because we never re-process emitted markup,
 // regex patterns can NEVER corrupt span attribute strings.
@@ -13,7 +13,6 @@ function esc(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
-// Emit one colored span around already-escaped content
 function span(cls: string, content: string) { return `<span class="${cls}">${content}</span>`; }
 
 const KW = new Set([
@@ -28,18 +27,15 @@ const KW = new Set([
 function tokenizeTS(s: string): string {
   let out = ""; let i = 0; const n = s.length;
   while (i < n) {
-    // Single-line comment
     if (s[i] === "/" && s[i+1] === "/") {
       let j = i; while (j < n && s[j] !== "\n") j++;
       out += span("sh-comment", s.slice(i, j)); i = j; continue;
     }
-    // Block comment
     if (s[i] === "/" && s[i+1] === "*") {
       let j = i + 2; while (j < n && !(s[j] === "*" && s[j+1] === "/")) j++;
       j = Math.min(j + 2, n);
       out += span("sh-comment", s.slice(i, j)); i = j; continue;
     }
-    // Double-quoted string — after esc(), " became &quot;
     if (s.startsWith("&quot;", i)) {
       let j = i + 6;
       while (j < n) {
@@ -50,42 +46,36 @@ function tokenizeTS(s: string): string {
       }
       out += span("sh-string", s.slice(i, j)); i = j; continue;
     }
-    // Single-quoted string
     if (s[i] === "'") {
       let j = i + 1;
       while (j < n && s[j] !== "'" && s[j] !== "\n") { if (s[j] === "\\") j++; j++; }
       if (j < n && s[j] === "'") j++;
       out += span("sh-string", s.slice(i, j)); i = j; continue;
     }
-    // Template literal
     if (s[i] === "`") {
       let j = i + 1;
       while (j < n && s[j] !== "`") { if (s[j] === "\\") j++; j++; }
       if (j < n) j++;
       out += span("sh-string", s.slice(i, j)); i = j; continue;
     }
-    // HTML entity (&amp; &lt; &gt; etc.) — emit whole entity as plain text
     if (s[i] === "&") {
       let j = i + 1; while (j < n && s[j] !== ";" && j - i < 8) j++;
       if (j < n && s[j] === ";") j++;
       out += s.slice(i, j); i = j; continue;
     }
-    // Number
     if (s[i] >= "0" && s[i] <= "9") {
       let j = i;
       while (j < n && ((s[j] >= "0" && s[j] <= "9") || s[j] === "_" || s[j] === ".")) j++;
       out += span("sh-number", s.slice(i, j)); i = j; continue;
     }
-    // Identifier → keyword / type / property / plain
     if (/[a-zA-Z_$]/.test(s[i])) {
       let j = i; while (j < n && /[a-zA-Z0-9_$]/.test(s[j])) j++;
       const word = s.slice(i, j);
-      // look-ahead past spaces to detect "key:"
       let k = j; while (k < n && (s[k] === " " || s[k] === "\t")) k++;
       const isProp = k < n && s[k] === ":" && s[k+1] !== ":";
-      if (KW.has(word))            out += span("sh-keyword",  word);
-      else if (/^[A-Z]/.test(word)) out += span("sh-type",    word);
-      else if (isProp)              out += span("sh-property", word);
+      if (KW.has(word))             out += span("sh-keyword",  word);
+      else if (/^[A-Z]/.test(word)) out += span("sh-type",     word);
+      else if (isProp)              out += span("sh-property",  word);
       else                          out += word;
       i = j; continue;
     }
@@ -195,36 +185,40 @@ export function CodeBlock({ code, language = "typescript", filename, className }
 
   return (
     <div className={cn(
-      "group relative rounded-2xl overflow-hidden border border-border/60",
-      "bg-[#0a0a10] shadow-xl shadow-black/30",
-      "hover:border-primary/20 transition-colors duration-300",
+      "group relative rounded-2xl overflow-hidden",
+      "border border-[#4d8fff]/12",
+      "shadow-xl shadow-black/40",
+      "hover:border-[#4d8fff]/25 hover:shadow-[0_0_30px_rgba(77,143,255,0.06)] transition-all duration-300",
       className
     )}>
       {/* Header bar */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-white/2 border-b border-border/50">
+      <div
+        className="flex items-center justify-between px-4 py-2.5 border-b border-[#4d8fff]/10"
+        style={{ background: "rgba(10,16,30,0.90)" }}
+      >
         <div className="flex items-center gap-3">
-          {/* Traffic lights */}
+          {/* macOS traffic lights */}
           <div className="flex gap-1.5">
-            <span className="size-2.5 rounded-full bg-[#ff5f56]" />
+            <span className="size-2.5 rounded-full bg-[#ff5f57]" />
             <span className="size-2.5 rounded-full bg-[#ffbd2e]" />
-            <span className="size-2.5 rounded-full bg-[#27c93f]" />
+            <span className="size-2.5 rounded-full bg-[#28ca41]" />
           </div>
           {filename && (
-            <span className="text-xs font-mono text-muted-foreground/70 pl-2 border-l border-border/40">
+            <span className="text-xs font-mono text-[#3d5a80] pl-2 border-l border-[#4d8fff]/12">
               {filename}
             </span>
           )}
         </div>
         <div className="flex items-center gap-3">
           {language && (
-            <span className="text-[11px] font-mono text-muted-foreground/50 uppercase tracking-wide">
+            <span className="text-[11px] font-mono text-[#2d4060] uppercase tracking-wide">
               {language}
             </span>
           )}
           <button
             onClick={copy}
-            className="flex items-center gap-1.5 text-xs text-muted-foreground/60 hover:text-primary
-                       px-2 py-1 rounded-md hover:bg-primary/10 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 text-xs text-[#3d5a80] hover:text-[#4d8fff]
+                       px-2 py-1 rounded-md hover:bg-[#4d8fff]/10 transition-all cursor-pointer"
             aria-label="Copy code"
           >
             {copied ? (
@@ -237,16 +231,16 @@ export function CodeBlock({ code, language = "typescript", filename, className }
       </div>
 
       {/* Code area with line numbers */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto" style={{ background: "#050a12" }}>
         <pre className="p-4 text-sm leading-relaxed font-mono">
           <code>
             {lines.map((line, i) => (
-              <div key={i} className="flex group/line hover:bg-primary/4 -mx-4 px-4 rounded">
-                <span className="select-none w-8 shrink-0 text-right text-muted-foreground/25 text-xs leading-relaxed mr-4 pt-px">
+              <div key={i} className="flex group/line hover:bg-[#4d8fff]/4 -mx-4 px-4 rounded">
+                <span className="select-none w-8 shrink-0 text-right text-[#1e3050] text-xs leading-relaxed mr-4 pt-px">
                   {i + 1}
                 </span>
                 <span
-                  className="flex-1 text-[#c8c6e0]"
+                  className="flex-1 text-[#b8c8e0]"
                   dangerouslySetInnerHTML={{ __html: line || " " }}
                 />
               </div>
@@ -270,35 +264,41 @@ interface PropRow {
 
 export function PropTable({ rows, className }: { rows: PropRow[]; className?: string }) {
   return (
-    <div className={cn("overflow-x-auto rounded-2xl border border-border/60 shadow-lg", className)}>
+    <div className={cn(
+      "overflow-x-auto rounded-2xl border border-[#4d8fff]/12 shadow-xl shadow-black/20",
+      className
+    )}>
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-border/60 bg-white/2">
-            <th className="text-left px-5 py-3.5 font-semibold text-xs uppercase tracking-widest text-muted-foreground/70 w-40">Option</th>
-            <th className="text-left px-4 py-3.5 font-semibold text-xs uppercase tracking-widest text-muted-foreground/70 w-48">Type</th>
-            <th className="text-left px-4 py-3.5 font-semibold text-xs uppercase tracking-widest text-muted-foreground/70 w-28">Default</th>
-            <th className="text-left px-4 py-3.5 font-semibold text-xs uppercase tracking-widest text-muted-foreground/70">Description</th>
+          <tr
+            className="border-b border-[#4d8fff]/10"
+            style={{ background: "rgba(10,16,30,0.80)" }}
+          >
+            <th className="text-left px-5 py-3.5 font-semibold text-xs uppercase tracking-widest text-[#2d4060] w-40">Option</th>
+            <th className="text-left px-4 py-3.5 font-semibold text-xs uppercase tracking-widest text-[#2d4060] w-48">Type</th>
+            <th className="text-left px-4 py-3.5 font-semibold text-xs uppercase tracking-widest text-[#2d4060] w-28">Default</th>
+            <th className="text-left px-4 py-3.5 font-semibold text-xs uppercase tracking-widest text-[#2d4060]">Description</th>
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, i) => (
+          {rows.map((row) => (
             <tr
               key={row.name}
-              className="border-b border-border/30 last:border-0 hover:bg-primary/3 transition-colors group"
+              className="border-b border-[#4d8fff]/6 last:border-0 hover:bg-[#4d8fff]/3 transition-colors group"
             >
               <td className="px-5 py-3.5">
-                <code className="font-mono text-xs text-primary font-semibold">
+                <code className="font-mono text-xs text-[#4d8fff] font-semibold">
                   {row.name}
                   {row.required && <span className="text-red-400 ml-0.5">*</span>}
                 </code>
               </td>
               <td className="px-4 py-3.5">
-                <code className="font-mono text-xs text-[#ffcb6b] whitespace-nowrap">{row.type}</code>
+                <code className="font-mono text-xs text-[#e0af68] whitespace-nowrap">{row.type}</code>
               </td>
               <td className="px-4 py-3.5">
-                <code className="font-mono text-xs text-muted-foreground/60">{row.default ?? "—"}</code>
+                <code className="font-mono text-xs text-[#2d4060]">{row.default ?? "—"}</code>
               </td>
-              <td className="px-4 py-3.5 text-xs text-muted-foreground leading-relaxed">{row.description}</td>
+              <td className="px-4 py-3.5 text-xs text-[#5a7094] leading-relaxed">{row.description}</td>
             </tr>
           ))}
         </tbody>
@@ -319,19 +319,19 @@ interface SectionHeadingProps {
 }
 
 const BADGE_COLORS: Record<string, string> = {
-  "Getting Started": "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20",
-  "API Reference":   "bg-violet-500/15 text-violet-400 border border-violet-500/20",
-  "Types":           "bg-sky-500/15 text-sky-400 border border-sky-500/20",
-  "Themes":          "bg-amber-500/15 text-amber-400 border border-amber-500/20",
-  "Advanced":        "bg-rose-500/15 text-rose-400 border border-rose-500/20",
-  "Features":        "bg-indigo-500/15 text-indigo-400 border border-indigo-500/20",
+  "Getting Started": "bg-emerald-500/12 text-emerald-400 border border-emerald-500/20",
+  "API Reference":   "bg-[#4d8fff]/12 text-[#7ab3ff] border border-[#4d8fff]/22",
+  "Types":           "bg-cyan-500/12 text-cyan-400 border border-cyan-500/20",
+  "Themes":          "bg-amber-500/12 text-amber-400 border border-amber-500/20",
+  "Advanced":        "bg-rose-500/12 text-rose-400 border border-rose-500/20",
+  "Features":        "bg-indigo-500/12 text-indigo-400 border border-indigo-500/20",
 };
 
 export function SectionHeading({
   id, children, level = 2, badge, badgeColor, className,
 }: SectionHeadingProps) {
   const Tag = `h${level}` as "h2" | "h3";
-  const color = badgeColor ?? (badge ? BADGE_COLORS[badge] ?? "bg-primary/10 text-primary" : "");
+  const color = badgeColor ?? (badge ? BADGE_COLORS[badge] ?? "bg-[#4d8fff]/10 text-[#4d8fff]" : "");
 
   return (
     <Tag
@@ -345,15 +345,21 @@ export function SectionHeading({
       )}
     >
       {level === 2 && (
-        <span className="inline-block w-1 h-6 rounded-full bg-primary/60 shrink-0" />
+        <span
+          className="inline-block w-1 h-6 rounded-full shrink-0"
+          style={{
+            background: "linear-gradient(to bottom, #4d8fff, #00d4ff)",
+            boxShadow: "0 0 12px rgba(77,143,255,0.5)",
+          }}
+        />
       )}
-      <a href={`#${id}`} className="hover:text-primary transition-colors">{children}</a>
+      <a href={`#${id}`} className="hover:text-[#4d8fff] transition-colors">{children}</a>
       {badge && (
         <span className={cn("text-[11px] font-medium px-2 py-0.5 rounded-full font-mono", color)}>
           {badge}
         </span>
       )}
-      <a href={`#${id}`} className="opacity-0 group-hover:opacity-40 transition-opacity text-muted-foreground text-sm font-normal" aria-hidden>#</a>
+      <a href={`#${id}`} className="opacity-0 group-hover:opacity-30 transition-opacity text-[#3d5a80] text-sm font-normal" aria-hidden>#</a>
     </Tag>
   );
 }
@@ -361,10 +367,10 @@ export function SectionHeading({
 // ─── Callout ──────────────────────────────────────────────────────────────────
 
 const CALLOUT = {
-  tip:     { border: "border-emerald-500/30", bg: "bg-emerald-500/[0.05]", icon: "💡", label: "Tip",     text: "text-emerald-400" },
-  note:    { border: "border-sky-500/30",     bg: "bg-sky-500/[0.05]",     icon: "📝", label: "Note",    text: "text-sky-400" },
-  warning: { border: "border-amber-500/30",   bg: "bg-amber-500/[0.05]",   icon: "⚠️", label: "Warning", text: "text-amber-400" },
-  danger:  { border: "border-red-500/30",     bg: "bg-red-500/[0.05]",     icon: "🚨", label: "Danger",  text: "text-red-400" },
+  tip:     { border: "border-emerald-500/25", bg: "bg-emerald-500/[0.04]", icon: "💡", label: "Tip",     text: "text-emerald-400" },
+  note:    { border: "border-[#4d8fff]/25",   bg: "bg-[#4d8fff]/[0.04]",   icon: "📝", label: "Note",    text: "text-[#7ab3ff]"   },
+  warning: { border: "border-amber-500/25",   bg: "bg-amber-500/[0.04]",   icon: "⚠️", label: "Warning", text: "text-amber-400"   },
+  danger:  { border: "border-red-500/25",     bg: "bg-red-500/[0.04]",     icon: "🚨", label: "Danger",  text: "text-red-400"     },
 };
 
 export function Callout({
@@ -381,7 +387,7 @@ export function Callout({
         <span>{s.icon}</span>
         <span>{s.label}</span>
       </div>
-      <div className="text-sm text-muted-foreground leading-relaxed">{children}</div>
+      <div className="text-sm text-[#5a7094] leading-relaxed">{children}</div>
     </div>
   );
 }
@@ -390,7 +396,7 @@ export function Callout({
 
 export function Code({ children }: { children: React.ReactNode }) {
   return (
-    <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/15">
+    <code className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-[#4d8fff]/10 text-[#7ab3ff] border border-[#4d8fff]/15">
       {children}
     </code>
   );
@@ -398,7 +404,7 @@ export function Code({ children }: { children: React.ReactNode }) {
 
 // ─── Badge ────────────────────────────────────────────────────────────────────
 
-export function Badge({ children, color = "bg-primary/10 text-primary border border-primary/15" }: {
+export function Badge({ children, color = "bg-[#4d8fff]/10 text-[#4d8fff] border border-[#4d8fff]/15" }: {
   children: React.ReactNode; color?: string;
 }) {
   return (

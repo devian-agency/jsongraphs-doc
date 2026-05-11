@@ -4,13 +4,14 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 interface NavItem { label: string; href: string }
-interface NavGroup { label: string; color: string; dot: string; items: NavItem[] }
+interface NavGroup { label: string; color: string; dot: string; dotGlow: string; items: NavItem[] }
 
 const NAV: NavGroup[] = [
   {
     label: "Getting Started",
     color: "text-emerald-400",
     dot: "bg-emerald-400",
+    dotGlow: "shadow-[0_0_6px_rgba(52,211,153,0.8)]",
     items: [
       { label: "Installation",      href: "#installation" },
       { label: "Quick Start",       href: "#quick-start" },
@@ -20,49 +21,53 @@ const NAV: NavGroup[] = [
   },
   {
     label: "API Reference",
-    color: "text-violet-400",
-    dot: "bg-violet-400",
+    color: "text-[#7ab3ff]",
+    dot: "bg-[#4d8fff]",
+    dotGlow: "shadow-[0_0_6px_rgba(77,143,255,0.8)]",
     items: [
-      { label: "JsonGraph",               href: "#jsongraph-class" },
-      { label: "load()",                  href: "#api-load" },
-      { label: "setLayout()",             href: "#api-setlayout" },
-      { label: "setTheme()",              href: "#api-settheme" },
-      { label: "toggleTheme()",           href: "#api-toggletheme" },
-      { label: "fitView()",               href: "#api-fitview" },
-      { label: "zoomIn() / zoomOut()",    href: "#api-zoom" },
+      { label: "JsonGraph",                   href: "#jsongraph-class" },
+      { label: "load()",                      href: "#api-load" },
+      { label: "setLayout()",                 href: "#api-setlayout" },
+      { label: "setTheme()",                  href: "#api-settheme" },
+      { label: "toggleTheme()",               href: "#api-toggletheme" },
+      { label: "fitView()",                   href: "#api-fitview" },
+      { label: "zoomIn() / zoomOut()",        href: "#api-zoom" },
       { label: "expandAll() / collapseAll()", href: "#api-expand" },
-      { label: "invalidateCache()",       href: "#api-invalidatecache" },
-      { label: "destroy()",               href: "#api-destroy" },
+      { label: "invalidateCache()",           href: "#api-invalidatecache" },
+      { label: "destroy()",                   href: "#api-destroy" },
     ],
   },
   {
     label: "Types",
-    color: "text-sky-400",
-    dot: "bg-sky-400",
+    color: "text-cyan-400",
+    dot: "bg-cyan-400",
+    dotGlow: "shadow-[0_0_6px_rgba(34,211,238,0.8)]",
     items: [
-      { label: "JsonSource",        href: "#type-jsonsource" },
-      { label: "LayoutType",        href: "#type-layouttype" },
-      { label: "NodeType",          href: "#type-nodetype" },
-      { label: "GraphNode",         href: "#type-graphnode" },
-      { label: "GraphEdge",         href: "#type-graphedge" },
-      { label: "ParseOptions",      href: "#type-parseoptions" },
-      { label: "ParseLimitError",   href: "#type-parselimiterror" },
-      { label: "Theme",             href: "#type-theme" },
+      { label: "JsonSource",      href: "#type-jsonsource" },
+      { label: "LayoutType",      href: "#type-layouttype" },
+      { label: "NodeType",        href: "#type-nodetype" },
+      { label: "GraphNode",       href: "#type-graphnode" },
+      { label: "GraphEdge",       href: "#type-graphedge" },
+      { label: "ParseOptions",    href: "#type-parseoptions" },
+      { label: "ParseLimitError", href: "#type-parselimiterror" },
+      { label: "Theme",           href: "#type-theme" },
     ],
   },
   {
     label: "Themes",
     color: "text-amber-400",
     dot: "bg-amber-400",
+    dotGlow: "shadow-[0_0_6px_rgba(251,191,36,0.8)]",
     items: [
-      { label: "Built-in Themes",   href: "#themes" },
-      { label: "Custom Theme",      href: "#themes-custom" },
+      { label: "Built-in Themes", href: "#themes" },
+      { label: "Custom Theme",    href: "#themes-custom" },
     ],
   },
   {
     label: "Advanced",
     color: "text-rose-400",
     dot: "bg-rose-400",
+    dotGlow: "shadow-[0_0_6px_rgba(251,113,133,0.8)]",
     items: [
       { label: "__CAPTION__ Key",     href: "#advanced-caption" },
       { label: "Streaming Large Files", href: "#advanced-streaming" },
@@ -75,13 +80,11 @@ export function DocSidebar() {
 
   React.useEffect(() => {
     const allIds = NAV.flatMap((g) => g.items.map((i) => i.href.slice(1)));
-    const map = new Map<Element, string>();
     const observers: IntersectionObserver[] = [];
 
     allIds.forEach((id) => {
       const el = document.getElementById(id);
       if (!el) return;
-      map.set(el, id);
       const obs = new IntersectionObserver(
         ([entry]) => { if (entry.isIntersecting) setActiveId(id); },
         { rootMargin: "-80px 0px -55% 0px", threshold: 0 }
@@ -96,15 +99,15 @@ export function DocSidebar() {
   return (
     <aside className="hidden lg:block w-56 xl:w-60 shrink-0">
       <div className="sticky top-[72px] max-h-[calc(100vh-5rem)] overflow-y-auto pr-1 pb-8">
-        <nav aria-label="Documentation navigation" className="space-y-6">
+        <nav aria-label="Documentation navigation" className="space-y-5">
           {NAV.map((group) => (
             <div key={group.label}>
               {/* Group header */}
               <div className={cn(
-                "flex items-center gap-2 px-2 mb-1.5 text-[10px] font-bold uppercase tracking-widest",
-                group.color, "opacity-80"
+                "flex items-center gap-2 px-2 mb-1.5 text-[10px] font-bold uppercase tracking-widest opacity-75",
+                group.color
               )}>
-                <span className={cn("size-1.5 rounded-full", group.dot)} />
+                <span className={cn("size-1.5 rounded-full shrink-0", group.dot, group.dotGlow)} />
                 {group.label}
               </div>
 
@@ -120,12 +123,15 @@ export function DocSidebar() {
                         className={cn(
                           "flex items-center gap-2 px-2 py-[6px] text-[13px] rounded-lg transition-all duration-150",
                           active
-                            ? "text-foreground font-medium bg-primary/10 border border-primary/20"
-                            : "text-muted-foreground hover:text-foreground hover:bg-white/3"
+                            ? "text-foreground font-medium bg-[#4d8fff]/10 border border-[#4d8fff]/20"
+                            : "text-[#3d5a80] hover:text-foreground hover:bg-[#4d8fff]/5"
                         )}
                       >
                         {active && (
-                          <span className="size-1 rounded-full bg-primary shrink-0" />
+                          <span
+                            className="size-1 rounded-full bg-[#4d8fff] shrink-0"
+                            style={{ boxShadow: "0 0 6px rgba(77,143,255,0.8)" }}
+                          />
                         )}
                         <span className={active ? "" : "pl-3"}>{item.label}</span>
                       </a>
@@ -137,21 +143,21 @@ export function DocSidebar() {
           ))}
 
           {/* Footer links */}
-          <div className="pt-4 border-t border-border/40 space-y-1">
+          <div className="pt-4 border-t border-[#4d8fff]/10 space-y-1">
             {[
-              { label: "GitHub", href: "https://github.com/devian-agency/jsongraphs" },
-              { label: "npm",    href: "https://www.npmjs.com/package/jsongraphs" },
-              { label: "Devian Agency", href: "https://devian.agency" },
+              { label: "GitHub",        href: "https://github.com/devian-agency/jsongraphs" },
+              { label: "npm",           href: "https://www.npmjs.com/package/jsongraphs" },
+              { label: "Devian Agency", href: "https://devian.in" },
             ].map((l) => (
               <a
                 key={l.href}
                 href={l.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-2 py-1.5 text-xs text-muted-foreground/60
-                           hover:text-muted-foreground rounded-lg hover:bg-white/3 transition-colors"
+                className="flex items-center gap-2 px-2 py-1.5 text-xs text-[#2d4060]
+                           hover:text-[#5a7094] rounded-lg hover:bg-[#4d8fff]/5 transition-colors"
               >
-                <span className="size-1 rounded-full bg-muted-foreground/30" />
+                <span className="size-1 rounded-full bg-[#2d4060]" />
                 {l.label} ↗
               </a>
             ))}

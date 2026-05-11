@@ -197,7 +197,7 @@ export function FeaturesSection() {
       </div>
 
       {/* Divider */}
-      <hr className="border-border/40" />
+      <hr className="feature-hr" />
 
       {/* ── 2. Radial Layout ── */}
       <div className="space-y-4">
@@ -223,7 +223,7 @@ export function FeaturesSection() {
         </DemoWindow>
       </div>
 
-      <hr className="border-border/40" />
+      <hr className="feature-hr" />
 
       {/* ── 3. Layout switching ── */}
       <div className="space-y-4">
@@ -241,7 +241,7 @@ export function FeaturesSection() {
         <LayoutToggleDemo />
       </div>
 
-      <hr className="border-border/40" />
+      <hr className="feature-hr" />
 
       {/* ── 4. Streaming parser ── */}
       <div className="space-y-4">
@@ -286,7 +286,7 @@ await graph.load('{"users":[...]}');`}
         </DemoWindow>
       </div>
 
-      <hr className="border-border/40" />
+      <hr className="feature-hr" />
 
       {/* ── 5. Expand / Collapse ── */}
       <div className="space-y-4">
@@ -314,7 +314,7 @@ await graph.load('{"users":[...]}');`}
         </DemoWindow>
       </div>
 
-      <hr className="border-border/40" />
+      <hr className="feature-hr" />
 
       {/* ── 6. Search ── */}
       <div className="space-y-4">
@@ -323,8 +323,8 @@ await graph.load('{"users":[...]}');`}
           <div>
             <h3 className="font-semibold text-foreground">Full-Text Search</h3>
             <p className="text-sm text-muted-foreground mt-1">
-              Press <kbd className="text-xs font-mono border border-border px-1.5 py-0.5 rounded bg-muted/50">Ctrl+K</kbd> (or{" "}
-              <kbd className="text-xs font-mono border border-border px-1.5 py-0.5 rounded bg-muted/50">⌘K</kbd>) to open
+              press <kbd className="text-xs font-mono border border-[#4d8fff]/20 px-1.5 py-0.5 rounded bg-[#111928]/80 text-[#7ab3ff]">Ctrl+K</kbd> (or{" "}
+              <kbd className="text-xs font-mono border border-[#4d8fff]/20 px-1.5 py-0.5 rounded bg-[#111928]/80 text-[#7ab3ff]">⌘K</kbd>) to open
               the search overlay. Results highlight matching nodes and pan the viewport to them.
               The search index is built at parse-time, making repeated queries O(1).
             </p>
@@ -341,7 +341,7 @@ await graph.load('{"users":[...]}');`}
         </DemoWindow>
       </div>
 
-      <hr className="border-border/40" />
+      <hr className="feature-hr" />
 
       {/* ── 7. Node type colours ── */}
       <div className="space-y-4">

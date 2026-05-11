@@ -1,0 +1,67 @@
+{
+  "name": "JsonGraphs",
+  "short_name": "JsonGraphs",
+  "description": "High-performance, dependency-free canvas library for visualizing complex JSON structures as beautiful, interactive graph visualizations. Streaming parser, tree & radial layouts, built-in minimap, search, and toolbar.",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#070b14",
+  "theme_color": "#4d8fff",
+  "categories": ["developer tools", "productivity", "utilities"],
+  "lang": "en",
+  "dir": "ltr",
+  "scope": "/",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/logo/logo.webp",
+      "sizes": "48x48",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo/logo.webp",
+      "sizes": "192x192",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo/logo.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo/logo.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/assets/images/og-image.webp",
+      "sizes": "1200x630",
+      "type": "image/webp",
+      "label": "JsonGraphs — Interactive JSON Graph Visualizer"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Documentation",
+      "short_name": "Docs",
+      "url": "/#installation",
+      "description": "Read the JsonGraphs documentation",
+      "icons": [{ "src": "/logo/logo.webp", "sizes": "96x96" }]
+    },
+    {
+      "name": "API Reference",
+      "short_name": "API",
+      "url": "/#jsongraph-class",
+      "description": "Browse the full JsonGraphs API reference",
+      "icons": [{ "src": "/logo/logo.webp", "sizes": "96x96" }]
+    }
+  ]
+}
